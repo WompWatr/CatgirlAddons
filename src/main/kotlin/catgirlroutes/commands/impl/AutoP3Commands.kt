@@ -1,7 +1,7 @@
 package catgirlroutes.commands.impl
 
 import catgirlroutes.CatgirlRoutes.Companion.mc
-import catgirlroutes.commands.*
+import com.github.stivais.commodore.Commodore
 import catgirlroutes.commands.impl.RingManager.allRings
 import catgirlroutes.commands.impl.RingManager.loadRings
 import catgirlroutes.commands.impl.RingManager.saveRings
@@ -13,6 +13,7 @@ import catgirlroutes.utils.ChatUtils.getPrefix
 import catgirlroutes.utils.ChatUtils.modMessage
 import catgirlroutes.utils.Utils.distanceToPlayer
 import com.github.stivais.commodore.utils.GreedyString
+import com.github.stivais.commodore.utils.SyntaxException
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
@@ -63,7 +64,7 @@ var blinkEditMode: Boolean = false
 var ringTypes: List<String> = listOf("velo", "walk", "look", "stop", "bonzo", "boom", "hclip", "block", "edge", "vclip", "jump", "align", "command", "blink", "movement")
 
 
-val autoP3Commands = commodore("p3") {
+val autoP3Commands = Commodore("p3") {
 
     literal("help").runs {
         modMessage("""
@@ -112,80 +113,114 @@ val autoP3Commands = commodore("p3") {
             """.trimIndent())
         }
 
-        runs { type: String, text: GreedyString? ->
-            var depth: Float? = null
-            var height = 1F
-            var width = 1F
-            var delay: Int? = null
-            val arguments = mutableListOf<String>()
-            var lookBlock: Vec3? = null
-            var command: String? = null
-            val packets = mutableListOf<Blink.BlinkC06>()
+        executable {
+            param("type") {
+                parser { string: String ->
+                    if (!ringTypes.contains(string)) throw SyntaxException("Invalid argument.")
+                    string
+                }
+                suggests { ringTypes }
+            }
 
-            if (!ringTypes.contains(type)) {
-                return@runs modMessage("""
+            runs { type: String, text: GreedyString? ->
+                var depth: Float? = null
+                var height = 1F
+                var width = 1F
+                var delay: Int? = null
+                val arguments = mutableListOf<String>()
+                var lookBlock: Vec3? = null
+                var command: String? = null
+                val packets = mutableListOf<Blink.BlinkC06>()
+
+                if (!ringTypes.contains(type)) {
+                    return@runs modMessage(
+                        """
                     §cInvalid ring type!
                       §rTypes: §7${ringTypes.joinToString()}
-                """.trimIndent())
-            }
-
-            /**
-             * regex shit is for commands (/p3 add command <"cmd"> [args])
-             */
-            val args = text?.string?.let { Regex("\"[^\"]*\"|\\S+").findAll(it).map { m -> m.value }.toList() } ?: emptyList()
-            debugMessage(args)
-
-            when (type) {
-                "block" -> {
-                    lookBlock = mc.thePlayer.rayTrace(40.0, 1F).hitVec
+                """.trimIndent()
+                    )
                 }
-                "vclip" -> {
-                    depth = args.firstOrNull { it.toFloatOrNull() != null }?.toFloat()
-                        ?: return@runs modMessage("Usage: §7/p3 add §dvclip §5<§ddepth§5> [§dargs..§5]")
-                }
-                "command" -> {
-                    command = args.firstOrNull { it.startsWith('"') && it.endsWith('"') }?.replace("\"", "")
-                        ?: return@runs modMessage("Usage: §7/p3 add §dcommand §5<§d\"cmd\"§5> [§dargs..§5]")
-                }
-            }
 
-            var x = Math.round(mc.renderManager.viewerPosX * 2) / 2.0
-            var y = Math.round(mc.renderManager.viewerPosY * 2) / 2.0
-            var z = Math.round(mc.renderManager.viewerPosZ * 2) / 2.0
+                /**
+                 * regex shit is for commands (/p3 add command <"cmd"> [args])
+                 */
+                val args = text?.string?.let { Regex("\"[^\"]*\"|\\S+").findAll(it).map { m -> m.value }.toList() }
+                    ?: emptyList()
+                debugMessage(args)
 
-            args.forEach { arg ->
-                when {
-                    arg.startsWith("w") && arg != "walk" -> width = arg.slice(1 until arg.length).toFloat()
-                    arg.startsWith("h") && arg != "hclip" -> height = arg.slice(1 until arg.length).toFloat()
-                    arg.startsWith("delay") -> { delay = arg.substring(5).toIntOrNull() ?: return@runs modMessage("§cInvalid delay!") }
-                    arg == "exact" -> {
-                        x = mc.renderManager.viewerPosX
-                        y = mc.renderManager.viewerPosY
-                        z = mc.renderManager.viewerPosZ
-                    }
-                    arg == "block" -> {
+                when (type) {
+                    "block" -> {
                         lookBlock = mc.thePlayer.rayTrace(40.0, 1F).hitVec
-                        arguments.add(arg)
                     }
-                    arg in listOf("stop", "look", "walk", "term", "fullstop", "block", "term") -> arguments.add(arg)
+
+                    "vclip" -> {
+                        depth = args.firstOrNull { it.toFloatOrNull() != null }?.toFloat()
+                            ?: return@runs modMessage("Usage: §7/p3 add §dvclip §5<§ddepth§5> [§dargs..§5]")
+                    }
+
+                    "command" -> {
+                        command = args.firstOrNull { it.startsWith('"') && it.endsWith('"') }?.replace("\"", "")
+                            ?: return@runs modMessage("Usage: §7/p3 add §dcommand §5<§d\"cmd\"§5> [§dargs..§5]")
+                    }
                 }
+
+                var x = Math.round(mc.renderManager.viewerPosX * 2) / 2.0
+                var y = Math.round(mc.renderManager.viewerPosY * 2) / 2.0
+                var z = Math.round(mc.renderManager.viewerPosZ * 2) / 2.0
+
+                args.forEach { arg ->
+                    when {
+                        arg.startsWith("w") && arg != "walk" -> width = arg.slice(1 until arg.length).toFloat()
+                        arg.startsWith("h") && arg != "hclip" -> height = arg.slice(1 until arg.length).toFloat()
+                        arg.startsWith("delay") -> {
+                            delay = arg.substring(5).toIntOrNull() ?: return@runs modMessage("§cInvalid delay!")
+                        }
+
+                        arg == "exact" -> {
+                            x = mc.renderManager.viewerPosX
+                            y = mc.renderManager.viewerPosY
+                            z = mc.renderManager.viewerPosZ
+                        }
+
+                        arg == "block" -> {
+                            lookBlock = mc.thePlayer.rayTrace(40.0, 1F).hitVec
+                            arguments.add(arg)
+                        }
+
+                        arg in listOf("stop", "look", "walk", "term", "fullstop", "block", "term") -> arguments.add(arg)
+                    }
+                }
+
+                if (type == "align") width = 1.0F
+
+                val location = Vec3(x, y, z)
+                val yaw = mc.renderManager.playerViewY
+                val pitch = mc.renderManager.playerViewX
+
+                val ring = Ring(
+                    type,
+                    location,
+                    yaw,
+                    pitch,
+                    height,
+                    width,
+                    lookBlock,
+                    depth,
+                    arguments,
+                    delay,
+                    command,
+                    packets,
+                    route
+                )
+
+                allRings.add(ring)
+
+                modMessage("${type.capitalize()} ring placed!")
+                saveRings()
+                loadRings()
+
             }
-
-            if (type == "align") width = 1.0F
-
-            val location = Vec3(x, y, z)
-            val yaw = mc.renderManager.playerViewY
-            val pitch = mc.renderManager.playerViewX
-
-            val ring = Ring(type, location, yaw, pitch, height, width, lookBlock, depth, arguments, delay, command, packets, route)
-
-            allRings.add(ring)
-
-            modMessage("${type.capitalize()} ring placed!")
-            saveRings()
-            loadRings()
-
-        }.suggests("type", ringTypes)
+        }
     }
 
     literal("edit").runs {
