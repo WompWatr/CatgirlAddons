@@ -1,7 +1,7 @@
 package catgirlroutes.commands.impl
 
 import catgirlroutes.CatgirlRoutes.Companion.mc
-import catgirlroutes.commands.commodore
+import com.github.stivais.commodore.Commodore
 import catgirlroutes.commands.impl.NodeManager.allNodes
 import catgirlroutes.commands.impl.NodeManager.loadNodes
 import catgirlroutes.commands.impl.NodeManager.saveNodes
@@ -17,6 +17,7 @@ import catgirlroutes.utils.dungeon.DungeonUtils.getRealCoords
 import catgirlroutes.utils.dungeon.DungeonUtils.getRelativeCoords
 import catgirlroutes.utils.dungeon.DungeonUtils.getRelativeYaw
 import com.github.stivais.commodore.utils.GreedyString
+import com.github.stivais.commodore.utils.SyntaxException
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
@@ -66,7 +67,7 @@ data class Node(
 var nodeEditMode: Boolean = false
 var nodeTypes: List<String> = listOf("warp", "walk", "look", "stop", "boom", "pearlclip", "pearl", "jump", "align", "command", "aotv", "hype")
 
-val autoRoutesCommands = commodore("node") {
+val autoRoutesCommands = Commodore("node") {
 
     literal("help").runs {
         modMessage("""
@@ -114,72 +115,95 @@ val autoRoutesCommands = commodore("node") {
             """.trimIndent())
         }
 
-        runs { type: String, text: GreedyString? ->
-            var depth: Float? = null
-            var height = 1F
-            var width = 1F
-            var delay: Int? = null
-            var block: Pair<Vec3, String>? = null
-            var command: String? = null
-            val arguments = mutableListOf<String>()
+        executable {
+            param("type") {
+                parser { string: String ->
+                    if (!nodeTypes.contains(string)) throw SyntaxException("Invalid argument.")
+                    string
+                }
+                suggests { nodeTypes }
+            }
 
-            if (!nodeTypes.contains(type)) {
-                return@runs modMessage("""
+
+            runs { type: String, text: GreedyString? ->
+                var depth: Float? = null
+                var height = 1F
+                var width = 1F
+                var delay: Int? = null
+                var block: Pair<Vec3, String>? = null
+                var command: String? = null
+                val arguments = mutableListOf<String>()
+
+                if (!nodeTypes.contains(type)) {
+                    return@runs modMessage(
+                        """
                     §cInvalid node type!
                       Types: §7${nodeTypes.joinToString()}
-                """.trimIndent())
-            }
-
-            /**
-             * regex shit is for commands (/node add command <"cmd"> [args])
-             */
-            val args = text?.string?.let { Regex("\"[^\"]*\"|\\S+").findAll(it).map { m -> m.value }.toList() } ?: emptyList()
-            debugMessage(args)
-
-            when (type) {
-                "pearlclip" -> {
-                    depth = args.firstOrNull { it.toFloatOrNull() != null }?.toFloat()
-                        ?: return@runs modMessage("Usage: §7/node add §dpearlclip §5<§ddepth§5> [§dargs..§5]")
+                """.trimIndent()
+                    )
                 }
-                "command" -> {
-                    command = args.firstOrNull { it.startsWith('"') && it.endsWith('"') }?.replace("\"", "")
-                        ?: return@runs modMessage("Usage: §7/node add §dcommand §5<§d\"cmd\"§5> [§dargs..§5]")
+
+                /**
+                 * regex shit is for commands (/node add command <"cmd"> [args])
+                 */
+                val args = text?.string?.let { Regex("\"[^\"]*\"|\\S+").findAll(it).map { m -> m.value }.toList() }
+                    ?: emptyList()
+                debugMessage(args)
+
+                when (type) {
+                    "pearlclip" -> {
+                        depth = args.firstOrNull { it.toFloatOrNull() != null }?.toFloat()
+                            ?: return@runs modMessage("Usage: §7/node add §dpearlclip §5<§ddepth§5> [§dargs..§5]")
+                    }
+
+                    "command" -> {
+                        command = args.firstOrNull { it.startsWith('"') && it.endsWith('"') }?.replace("\"", "")
+                            ?: return@runs modMessage("Usage: §7/node add §dcommand §5<§d\"cmd\"§5> [§dargs..§5]")
+                    }
                 }
-            }
 
-            args.forEach { arg ->
-                when {
-                    arg.startsWith("w") && arg != "walk" -> width = arg.slice(1 until arg.length).toFloat()
-                    arg.startsWith("h") -> height = arg.slice(1 until arg.length).toFloat()
-                    arg.startsWith("delay") -> { delay = arg.substring(5).toIntOrNull() ?: return@runs modMessage("§cInvalid delay!") }
-                    arg.startsWith("block") -> { block = getBlock(arg); if (block!!.second.contains("null")) return@runs modMessage("§cInvalid block! §rUsage: block, block:<id>, block:<id>:<metadata>") }
-                    arg in listOf("stop", "look", "walk", "await", "unshift", "once") -> arguments.add(arg)
+                args.forEach { arg ->
+                    when {
+                        arg.startsWith("w") && arg != "walk" -> width = arg.slice(1 until arg.length).toFloat()
+                        arg.startsWith("h") -> height = arg.slice(1 until arg.length).toFloat()
+                        arg.startsWith("delay") -> {
+                            delay = arg.substring(5).toIntOrNull() ?: return@runs modMessage("§cInvalid delay!")
+                        }
+
+                        arg.startsWith("block") -> {
+                            block =
+                                getBlock(arg); if (block!!.second.contains("null")) return@runs modMessage("§cInvalid block! §rUsage: block, block:<id>, block:<id>:<metadata>")
+                        }
+
+                        arg in listOf("stop", "look", "walk", "await", "unshift", "once") -> arguments.add(arg)
+                    }
                 }
+
+                val room = currentRoom  //return@runs
+
+                val x = floor(mc.renderManager.viewerPosX)
+                val y = floor(mc.renderManager.viewerPosY)
+                val z = floor(mc.renderManager.viewerPosZ)
+                var location = Vec3(x, y, z)
+                var yaw = mc.renderManager.playerViewY
+                var name = getArea().toString()
+                if (room != null) {
+                    name = currentRoomName
+                    location = room.getRelativeCoords(Vec3(x, y, z))
+                    yaw = room.getRelativeYaw(mc.renderManager.playerViewY)
+                }
+                val pitch = mc.renderManager.playerViewX
+
+                val node =
+                    Node(type, location, height, width, yaw, pitch, depth, block, arguments, delay, command, name)
+
+                allNodes.add(node)
+
+                modMessage("${type.capitalize()} placed!")
+                saveNodes()
+                loadNodes()
             }
-
-            val room = currentRoom  //return@runs
-
-            val x = floor(mc.renderManager.viewerPosX)
-            val y = floor(mc.renderManager.viewerPosY)
-            val z = floor(mc.renderManager.viewerPosZ)
-            var location = Vec3(x, y, z)
-            var yaw = mc.renderManager.playerViewY
-            var name = getArea().toString()
-            if (room != null) {
-                name = currentRoomName
-                location = room.getRelativeCoords(Vec3(x, y, z))
-                yaw = room.getRelativeYaw(mc.renderManager.playerViewY)
-            }
-            val pitch = mc.renderManager.playerViewX
-
-            val node = Node(type, location, height, width, yaw, pitch, depth, block, arguments, delay, command, name)
-
-            allNodes.add(node)
-
-            modMessage("${type.capitalize()} placed!")
-            saveNodes()
-            loadNodes()
-        }.suggests("type", nodeTypes)
+        }
     }
 
 

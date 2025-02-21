@@ -1,7 +1,7 @@
 package catgirlroutes
 
 import catgirlroutes.commands.impl.*
-import catgirlroutes.commands.registerCommands
+import catgirlroutes.commands.CommandRegistry
 import catgirlroutes.config.InventoryButtonsConfig
 import catgirlroutes.config.ModuleConfig
 import catgirlroutes.events.EventDispatcher
@@ -45,12 +45,6 @@ class CatgirlRoutes {
     fun onInit(event: FMLInitializationEvent) {
         ModuleManager.loadModules()
 
-        registerCommands(
-            catgirlAddonsCommands, devCommands,
-            pearlClip, lavaClip, blockClip, aura, inventoryButtons,
-            autoP3Commands, autoRoutesCommands, rotationDebug
-        )
-
         listOf(
             this,
             ModuleManager,
@@ -74,6 +68,8 @@ class CatgirlRoutes {
             NeuRepo,
             SkyblockPlayer
         ).forEach(MinecraftForge.EVENT_BUS::register)
+
+        CommandRegistry.register()
     }
     @Mod.EventHandler
     fun postInit(event: FMLLoadCompleteEvent) = runBlocking {
