@@ -8,7 +8,7 @@ import com.github.stivais.commodore.utils.getArgumentsRequired
 import com.github.stivais.commodore.utils.getRootNode
 import catgirlroutes.commands.impl.*
 import catgirlroutes.utils.rotation.rotationDebug
-import me.odinmain.utils.skyblock.modMessage
+import catgirlroutes.utils.ChatUtils.modMessage
 
 /**
  * Contains [Commodore] commands to register when the mod is initialized.
