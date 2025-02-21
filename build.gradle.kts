@@ -31,7 +31,6 @@ blossom {
     replaceToken("@MODVERSION@", version)
 }
 
-
 tasks.register("downloadOdin") {
     val downloadUrl = "https://github.com/odtheking/Odin/releases/download/${requiredOdinVersion}/${requiredOdin}"
     val targetFile = file("build/resources/Odin")
