@@ -52,12 +52,12 @@ object CgaUsers { // todo: add capes with gif
 //            val cape = jsonObject?.get("cape")?.asString
             // cape is null because I added a new column in table
             val cape = if (jsonObject?.get("cape")?.isJsonNull == true) { // todo: remove when all users updated
-                "XkdcuPO"
+                "yxrdIat"
             } else {
                 jsonObject?.get("cape")?.asString
             }
 
-            return UserData(name ?: "", uuid ?: "", permission ?: 1, sizeTriple, cape ?: "XkdcuPO")
+            return UserData(name ?: "", uuid ?: "", permission ?: 1, sizeTriple, cape ?: "yxrdIat")
         }
     }
 
@@ -118,7 +118,7 @@ object CgaUsers { // todo: add capes with gif
     }
 
     init {
-        //updateUsers()
+        updateUsers()
     }
 
 }

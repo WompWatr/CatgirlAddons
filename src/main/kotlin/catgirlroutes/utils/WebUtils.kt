@@ -23,7 +23,7 @@ suspend fun hasBonusPaulScore(): Boolean = withTimeoutOrNull(5000) {
     } else false
 } == true
 
-suspend fun sendDataToServer(body: String, url: String = "https://arasfjoiadjf.p-e.kr/cga/users" ): String = withTimeoutOrNull(5000) { // arasfjoiadjf.p-e.kr
+suspend fun sendDataToServer(body: String, url: String = "https://cga.mvpu.pro/cga/users" ): String = withTimeoutOrNull(5000) { // arasfjoiadjf.p-e.kr
     return@withTimeoutOrNull try {
         val connection = withContext(Dispatchers.IO) {
             URL(url).openConnection()
@@ -49,7 +49,7 @@ suspend fun sendDataToServer(body: String, url: String = "https://arasfjoiadjf.p
     } catch (_: Exception) { "" }
 } ?: ""
 
-suspend fun getDataFromServer(url: String = "https://arasfjoiadjf.p-e.kr/cga/users"): String {
+suspend fun getDataFromServer(url: String = "https://cga.mvpu.pro/cga/users"): String {
     return withTimeoutOrNull(10000) {
         try {
             val connection = withContext(Dispatchers.IO) {

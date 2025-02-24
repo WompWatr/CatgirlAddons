@@ -29,17 +29,17 @@ object CgaUser : Module(
     private val scaleY = NumberSetting("Scale Y", 1.0, -3.0, 3.0, 0.1)
     private val scaleZ = NumberSetting("Scale Z", 1.0, -3.0, 3.0, 0.1)
 
-    private val cape: StringSetting = StringSetting("Cape", "XkdcuPO")
+    private val cape: StringSetting = StringSetting("Cape", "yxrdIat")
 
     private val reset: ActionSetting = ActionSetting("Reset") {
         modMessage("Resetting User settings")
         scaleX.value = 1.0; scaleY.value = 1.0; scaleZ.value = 1.0
-        cape.text = "XkdcuPO"
+        cape.text = "yxrdIat"
     }
 
     val updateUser = ActionSetting("Update User Data") {
         scope.launch {
-            var c = cape.value.takeIf { it.isNotEmpty() } ?: "XkdcuPO"
+            var c = cape.value.takeIf { it.isNotEmpty() } ?: "yxrdIat"
             // https://regex101.com/r/dZ971v/2
             c = Regex("(https://imgur\\.com/)?([a-zA-Z0-9]+)(?:\\.png)?").find(c)?.groups?.get(2)?.value ?: c // fuck regex it dosen't work
             val jsonString = """
