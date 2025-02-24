@@ -25,6 +25,7 @@ import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.network.play.server.S2DPacketOpenWindow
 import net.minecraft.network.play.server.S30PacketWindowItems
 import net.minecraftforge.client.event.GuiScreenEvent
+import net.minecraftforge.event.world.WorldEvent
 import net.minecraftforge.fml.client.config.GuiUtils
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import org.lwjgl.input.Mouse
@@ -121,6 +122,11 @@ object InventoryButtons : Module(
             }
             InventoryButtonsConfig.save()
         }
+        this.shouldScanEq = false
+    }
+
+    @SubscribeEvent
+    fun onWorldLoad(event: WorldEvent.Load) {
         this.shouldScanEq = false
     }
 

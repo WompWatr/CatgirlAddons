@@ -506,6 +506,7 @@ object HUDRenderUtils {
         GlStateManager.pushMatrix()
         GlStateManager.translate(0.0, 0.0, -10.0)
         GlStateManager.disableBlend()
+        GlStateManager.disableLighting()
         Gui.drawRect(
             xDisplayPosition,
             yDisplayPosition,
@@ -514,6 +515,7 @@ object HUDRenderUtils {
             color.rgb
         )
         GlStateManager.enableBlend()
+        GlStateManager.enableLighting()
         GlStateManager.popMatrix()
     }
 }

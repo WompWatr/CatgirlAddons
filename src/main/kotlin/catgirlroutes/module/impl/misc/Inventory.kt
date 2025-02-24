@@ -10,10 +10,8 @@ import catgirlroutes.module.Module
 import catgirlroutes.module.settings.RegisterHudElement
 import catgirlroutes.module.settings.Setting.Companion.withDependency
 import catgirlroutes.module.settings.Visibility
-import catgirlroutes.module.settings.impl.BooleanSetting
-import catgirlroutes.module.settings.impl.DropdownSetting
-import catgirlroutes.module.settings.impl.NumberSetting
-import catgirlroutes.module.settings.impl.StringSetting
+import catgirlroutes.module.settings.impl.*
+import catgirlroutes.ui.clickgui.util.ColorUtil
 import catgirlroutes.ui.hud.HudElement
 import catgirlroutes.ui.misc.elements.impl.MiscElementText
 import catgirlroutes.ui.misc.searchoverlay.AhBzSearch
@@ -49,6 +47,8 @@ object Inventory : Module(
 ) { // todo: neu type shit search overlay (jei shit on the side)
 
     private val searchBar = BooleanSetting("Search bar", description = "Use \",\" separator to search for things like attributes")
+    private val bgColour_ = ColorSetting("Background colour", Color(ColorUtil.buttonColor)).withDependency { searchBar.enabled }
+    private val outlineColour_ = ColorSetting("Outline colour", ColorUtil.clickGUIColor).withDependency { searchBar.enabled }
     private val itemList = BooleanSetting("Item list").withDependency { searchBar.enabled }
 
     private val ahDropdown = DropdownSetting("Auction house")
@@ -68,13 +68,15 @@ object Inventory : Module(
     private var overlay: OverlayType = OverlayType.NONE
     private var clickedSearch = false
 
-    private var textField = MiscElementText(width = 225.0, height = 20.0) // temp // todo calc
+    private var textField = MiscElementText(width = 200.0, height = 20.0, bgColour = this.bgColour_.value, outlineColour = this.outlineColour_.value.darker()) // temp // todo calc
     private var highlightSlots = mutableMapOf<Int, HighlightSlot>()
     private val stupid get() = mc.theWorld == null || !inSkyblock || !this.searchBar.enabled || (mc.currentScreen !is GuiInventory && mc.currentScreen !is GuiChest)
 
     init {
         addSettings(
             this.searchBar,
+            this.bgColour_,
+            this.outlineColour_,
             this.itemList,
 
             this.ahDropdown,
@@ -177,6 +179,9 @@ object Inventory : Module(
         this.textField.apply {
             x = barX.value
             y = barY.value
+            bgColour = bgColour_.value
+            outlineColour = outlineColour_.value.darker()
+            outlineFocusColour = outlineColour_.value
             render(0, 0)
         }
         GlStateManager.enableLighting()
@@ -209,7 +214,7 @@ object Inventory : Module(
 
     // dummy HudElement to move search bar position
     @RegisterHudElement
-    object SearchBar : HudElement(this, this.barX, this.barY, 225, 25, this.barScale) { override fun renderHud() {  } }
+    object SearchBar : HudElement(this, this.barX, this.barY, 200, 25, this.barScale) { override fun renderHud() {  } }
 
     private fun matchType(name: String, lore: String, string: String) = when {
         name.isEmpty() || lore.isEmpty() || string.isEmpty() -> 0

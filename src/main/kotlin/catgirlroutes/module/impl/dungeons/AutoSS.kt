@@ -4,7 +4,7 @@ import catgirlroutes.CatgirlRoutes.Companion.mc
 import catgirlroutes.events.impl.BlockChangeEvent
 import catgirlroutes.module.Category
 import catgirlroutes.module.Module
-import catgirlroutes.module.impl.dungeons.AutoSS.smoothRotate
+import catgirlroutes.module.settings.Setting.Companion.withDependency
 import catgirlroutes.module.settings.Visibility
 import catgirlroutes.module.settings.impl.ActionSetting
 import catgirlroutes.module.settings.impl.BooleanSetting
@@ -42,13 +42,12 @@ object AutoSS : Module(
     name = "AutoSS",
     Category.DUNGEON
 ){
-    val delay: NumberSetting = NumberSetting("Delay", 200.0, 50.0, 500.0, 10.0)
+    val delay: NumberSetting = NumberSetting("Delay", 200.0, 50.0, 500.0, 10.0, unit = "ms")
     private val forceDevice: BooleanSetting = BooleanSetting("Force Device", false, visibility = Visibility.ADVANCED_ONLY)
     private val resetSS: ActionSetting = ActionSetting("Reset SS") {reset(); doingSS = false; clicked = false}
-    private val autoStart: NumberSetting = NumberSetting("Autostart delay", 125.0, 50.0, 200.0, 1.0)
+    private val autoStart: NumberSetting = NumberSetting("Autostart delay", 125.0, 50.0, 200.0, 1.0, unit = "ms")
     private val smoothRotate: BooleanSetting = BooleanSetting("Rotate", false)
-    private val time: NumberSetting = NumberSetting("Rotation Speed", 200.0, 0.0, 500.0, 10.0)
-
+    private val time: NumberSetting = NumberSetting("Rotation Speed", 200.0, 0.0, 500.0, 10.0).withDependency { this.smoothRotate.enabled }
 
     init {
         ssLoop()
@@ -105,7 +104,7 @@ object AutoSS : Module(
                     for (i in 0 until 2) {
                         reset()
                         clickButton(startButton.x, startButton.y, startButton.z)
-                        Thread.sleep(Random.nextInt(delay.value.toInt(), delay.value.toInt() * 1136 / 1000).toLong())
+                        Thread.sleep(Random.nextInt(autoStart.value.toInt(), autoStart.value.toInt() * 1136 / 1000).toLong())
                     }
                     doingSS = true
                     clickButton(startButton.x, startButton.y, startButton.z)

@@ -13,7 +13,7 @@ import net.minecraft.util.ResourceLocation
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 
-class Notification(
+class Notification( // todo recode
     val title: String,
     val description: String,
     private val duration: Double,
@@ -26,6 +26,7 @@ class Notification(
     fun draw(x: Double, y: Double, width: Double, height: Double) {
         GlStateManager.pushMatrix()
         GlStateManager.enableBlend()
+        GlStateManager.disableLighting()
         GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA)
 
         HUDRenderUtils.renderRect(x, y, width, height, Color(ColorUtil.bgColor)) // bg
@@ -66,6 +67,7 @@ class Notification(
 
         GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f)
         GlStateManager.disableBlend()
+        GlStateManager.enableLighting()
         GlStateManager.popMatrix()
     }
 }

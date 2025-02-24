@@ -81,7 +81,8 @@ object ModuleManager {
         AutoKick,
         AutoWardrobe,
         WitherCloak,
-        // SearchOverlay,
+        Inventory,
+        PhoenixAuth,
 
         // Player
         AutoSprint,
@@ -104,9 +105,6 @@ object ModuleManager {
         Trail,
         DungeonESP,
         ScreenImage,
-
-        // temp
-        Inventory
     )
 
     /**

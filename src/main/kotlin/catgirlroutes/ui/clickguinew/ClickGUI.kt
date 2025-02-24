@@ -19,13 +19,13 @@ import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.util.MathHelper
+import org.lwjgl.input.Keyboard
 import org.lwjgl.input.Mouse
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 import java.io.IOException
 
-class ClickGUI : GuiScreen() { // todo: fix font rendering, gui scale shit
-    var scale = 2.0
+class ClickGUI : GuiScreen() { // todo: fix font rendering
 
     var x: Double = 0.0
     var y: Double = 0.0
@@ -63,8 +63,9 @@ class ClickGUI : GuiScreen() { // todo: fix font rendering, gui scale shit
 
     override fun initGui() {
         sr = ScaledResolution(mc)
-        x = sr.scaledWidth_double / 2.0 - guiWidth / 2.0
-        y = sr.scaledHeight_double / 2.0 - guiHeight / 2.0
+        scale = CLICK_GUI_SCALE / sr.scaleFactor
+        x = ((sr.scaledWidth_double / 2.0) - (guiWidth / 2.0) * scale) / scale
+        y = ((sr.scaledHeight_double / 2.0) - (guiHeight / 2.0) * scale) / scale
 
         searchBar.x = this.x + categoryWidth + 5.0
         searchBar.y = this.y
@@ -82,9 +83,7 @@ class ClickGUI : GuiScreen() { // todo: fix font rendering, gui scale shit
         val prevScale = mc.gameSettings.guiScale
         scale = CLICK_GUI_SCALE / sr.scaleFactor
         mc.gameSettings.guiScale = 2
-//        GL11.glTranslated(sr.scaledWidth_double / 2.0, sr.scaledHeight_double / 2.0, 0.0)
         GL11.glScaled(scale, scale, scale)
-//        GL11.glTranslated(-(sr.scaledWidth_double / 2.0), -(sr.scaledHeight_double / 2.0), 0.0)
 
         var categoryOffset = 25.0
 
@@ -101,7 +100,6 @@ class ClickGUI : GuiScreen() { // todo: fix font rendering, gui scale shit
             outlineFocusColour = ColorUtil.clickGUIColor
             render(scaledMouseX, scaledMouseY)
         }
-//        debugMessage(selectedWindow.category.name)
         categoryButtons.clear()
 
         val scissor = scissor(x, y + 26.0, guiWidth, guiHeight - 27.0)
@@ -175,7 +173,6 @@ class ClickGUI : GuiScreen() { // todo: fix font rendering, gui scale shit
     override fun mouseClicked(mouseX: Int, mouseY: Int, mouseButton: Int) {
         this.searchBar.mouseClicked(scaledMouseX, scaledMouseY, mouseButton)
         categoryButtons.forEach { it.mouseClicked(scaledMouseX, scaledMouseY, mouseButton) }
-
         windows.reversed().forEach { if (it.mouseClicked(scaledMouseX, scaledMouseY, mouseButton)) return }
         super.mouseClicked(scaledMouseX, scaledMouseY, mouseButton)
     }
@@ -188,13 +185,9 @@ class ClickGUI : GuiScreen() { // todo: fix font rendering, gui scale shit
     override fun keyTyped(typedChar: Char, keyCode: Int) {
         this.searchBar.keyTyped(typedChar, keyCode)
         windows.reversed().forEach { if (it.keyTyped(typedChar, keyCode)) return }
-//        if (keyCode == ClickGui.settings.last().value && System.currentTimeMillis() - openedTime > 200) {
-//            mc.displayGuiScreen(null as GuiScreen?)
-//            if (mc.currentScreen == null) {
-//                mc.setIngameFocus()
-//            }
-//            return
-//        }
+        if (isCtrlKeyDown() && keyCode == Keyboard.KEY_F) {
+            this.searchBar.focus = true
+        }
         super.keyTyped(typedChar, keyCode)
     }
 
@@ -208,6 +201,7 @@ class ClickGUI : GuiScreen() { // todo: fix font rendering, gui scale shit
     }
 
     override fun onGuiClosed() {
+        this.searchBar.focus = false
         moduleConfig.saveConfig()
     }
 
@@ -242,5 +236,6 @@ class ClickGUI : GuiScreen() { // todo: fix font rendering, gui scale shit
     companion object {
         const val CLICK_GUI_SCALE = 2.0
         var windows: ArrayList<Window> = arrayListOf()
+        var scale = 2.0
     }
 }

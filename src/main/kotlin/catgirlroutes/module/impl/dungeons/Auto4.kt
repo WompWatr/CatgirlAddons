@@ -14,6 +14,8 @@ import catgirlroutes.utils.MovementUtils.clearBlocks
 import catgirlroutes.utils.MovementUtils.moveToBlock
 import catgirlroutes.utils.MovementUtils.movementKeysDown
 import catgirlroutes.utils.MovementUtils.targetBlocks
+import catgirlroutes.utils.PacketUtils.sendPacket
+import catgirlroutes.utils.PlayerUtils.airClick
 import catgirlroutes.utils.PlayerUtils.isHolding
 import catgirlroutes.utils.Utils
 import catgirlroutes.utils.Utils.lore
@@ -31,6 +33,8 @@ import catgirlroutes.utils.rotation.RotationUtils.getYawAndPitch
 import catgirlroutes.utils.rotation.RotationUtils.snapTo
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.init.Blocks
+import net.minecraft.network.play.client.C03PacketPlayer
+import net.minecraft.network.play.client.C03PacketPlayer.C05PacketPlayerLook
 import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minecraft.network.play.server.S22PacketMultiBlockChange
 import net.minecraft.network.play.server.S23PacketBlockChange
@@ -187,12 +191,17 @@ object Auto4: Module(
         moveToBlock(63.5, 35.5)
     }
 
+    var cancelNext = false
+
     private fun shootBlock() {
         if (currentBlock == null || !onDev() || !inDungeons) return
         val coords = aimCoords(currentBlock!!)
         val rotation = getYawAndPitch(coords.xCoord, coords.yCoord, coords.zCoord)
         if (aimSnap.value) snapTo(rotation.first, rotation.second)
-        clickAt(rotation.first, rotation.second)
+        //clickAt(rotation.first, rotation.second)
+        sendPacket(C05PacketPlayerLook(rotation.first, rotation.second, mc.thePlayer.onGround))
+        cancelNext = true
+        airClick()
     }
 
     private fun aimCoords(coords: BlockPos): Vec3 {
@@ -238,6 +247,9 @@ object Auto4: Module(
             }
         } else if (event.packet is S08PacketPlayerPosLook && autoPlate.enabled && targetBlocks.isNotEmpty() && targetBlocks.first() == Vec3(63.5, 0.0, 35.5)) {
             clearBlocks()
+        } else if (event.packet is C03PacketPlayer && cancelNext) {
+            cancelNext = false
+            event.isCanceled = true
         }
     }
 }
