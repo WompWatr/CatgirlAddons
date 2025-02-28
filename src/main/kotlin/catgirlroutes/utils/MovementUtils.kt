@@ -1,7 +1,7 @@
 package catgirlroutes.utils
 
 import catgirlroutes.CatgirlRoutes.Companion.mc
-import catgirlroutes.commands.commodore
+import com.github.stivais.commodore.Commodore
 import catgirlroutes.utils.ClientListener.scheduleTask
 import catgirlroutes.utils.MovementUtils.addBlock
 import catgirlroutes.utils.MovementUtils.clearBlocks
@@ -149,7 +149,7 @@ object MovementUtils {
     }
 }
 
-val thisshit = commodore("mottar") { //motiontarget
+val thisshit = Commodore("mottar") { //motiontarget
     literal("set").runs{
             x: Double, z: Double ->
         moveToBlock(x, z)
