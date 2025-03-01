@@ -117,10 +117,11 @@ object WaterSolver {
             }
             .sortedBy { (lever, time) -> time + if (lever == LeverBlock.WATER) 0.01 else 0.0 }
 
-        val firstSolution = solutionList.firstOrNull() ?: return
-
-        if (blockArray.contains(BlockAura.BlockAuraAction(firstSolution.first.leverPos.toBlockPos(), 6.0)) || firstSolution.second != 0.0) return
-        blockArray.add(BlockAura.BlockAuraAction(firstSolution.first.leverPos.toBlockPos(), 6.0))
+        val solution = solutionList
+        solution.forEach {
+            if (blockArray.contains(BlockAura.BlockAuraAction(it.first.leverPos.toBlockPos(), 6.0)) || it.second != 0.0) return
+            blockArray.add(BlockAura.BlockAuraAction(it.first.leverPos.toBlockPos(), 6.0))
+        }
     }
 
     fun waterInteract(event: C08PacketPlayerBlockPlacement) {
