@@ -84,7 +84,7 @@ object AutoExcavator : Module(
                 
                 shouldClick = true
             }
-            if (slot <= 53 && name?.contains("Fossil") == true) {
+            if (slot <= 53 && name?.endsWith("Fossil") == true) {
                 shouldClick = false
                 menuOne.clear()
                 menuTwo.clear()
