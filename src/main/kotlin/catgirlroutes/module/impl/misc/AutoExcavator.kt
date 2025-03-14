@@ -67,7 +67,7 @@ object AutoExcavator : Module(
         val name = itemStack?.displayName //Dirt
         val metadata = itemStack?.metadata
         val registryName = item?.registryName //minecraft:stained_glass_pane
-
+                
         if (phase == 1) {
             if (registryName == "minecraft:stained_glass_pane") {
                 when (metadata) {
@@ -98,6 +98,14 @@ object AutoExcavator : Module(
                 devMessage("Scrap found")
             }
             if (slot > 80) {
+                if (name?.contains("Fossil") == true) {
+                    shouldClick = false
+                    menuOne.clear()
+                    menuTwo.clear()
+                    modMessage("Fossil found! You can now use a other mod to find the fossil")
+                    //TODO implement a way to automatically use the algorithm for finding fossil and then click these slots but for now we will just exit
+                    return
+                }
                 shouldClick = true
             }
         }
