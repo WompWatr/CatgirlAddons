@@ -1,5 +1,5 @@
 itheserenity was here (certified ratter)
 
-~~https://discord.gg/8NMEAhNRgd~~ OUTDATED
+OUTDATED ~~https://discord.gg/8NMEAhNRgd~~
  
  
