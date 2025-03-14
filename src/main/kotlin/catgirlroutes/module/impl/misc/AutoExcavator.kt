@@ -21,7 +21,7 @@ object AutoExcavator : Module(
     category = Category.MISC
 ) {
     val clickDelay = NumberSetting("Click Delay", 150.0, 0.0, 300.0, 10.0, unit = "ms")
-    val randomDelay = NumberSetting("Random Delay", 0.0, 0.0, 100.0, 1.0, unit = "ms")
+    val randomDelay = NumberSetting("Random Delay", 0.0, 0.0, 100.0, 5.0, unit = "ms")
     val firstClickDelay = NumberSetting("First Click Delay", 300.0, 0.0, 1000.0, 10.0, unit = "ms")
     init {
         this.addSettings(
@@ -107,7 +107,7 @@ object AutoExcavator : Module(
     fun onTick(event: ClientTickEvent) {
         if (mc.ingameGUI == null) return
         if (!shouldClick) return
-        if (lastClick + clickDelay.value + Random.nextDouble(0.0, randomDelay.value) > System.currentTimeMillis()) return
+        if (lastClick + clickDelay.value + (if (randomDelay.value <= 0) 0.0 else Random.nextDouble(0.0, randomDelay.value)) > System.currentTimeMillis()) return
         lastClick = System.currentTimeMillis()
         if (phase == 2) {
             if (!scrapFound || !chiselFound) {
