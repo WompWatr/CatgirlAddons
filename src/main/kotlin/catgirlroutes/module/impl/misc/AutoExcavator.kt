@@ -83,6 +83,15 @@ object AutoExcavator : Module(
             if (slot > 80) {
                 shouldClick = true
             }
+
+            if (name?.contains("Fossil") == true) {
+                shouldClick = false
+                menuOne.clear()
+                menuTwo.clear()
+                modMessage("Fossil found! You can now use a other mod to find the fossil")
+                //TODO implement a way to automatically use the algorithm for finding fossil and then click these slots but for now we will just exit
+                return
+            }
         }
         if (phase == 2) {
             if (name?.contains("Chisel") == true && slot > 53) {
@@ -101,14 +110,7 @@ object AutoExcavator : Module(
                 shouldClick = true
             }
 
-            if (name?.contains("Fossil") == true) {
-                shouldClick = false
-                menuOne.clear()
-                menuTwo.clear()
-                modMessage("Fossil found! You can now use a other mod to find the fossil")
-                //TODO implement a way to automatically use the algorithm for finding fossil and then click these slots but for now we will just exit
-                return
-            }
+            
         }
     }
 
