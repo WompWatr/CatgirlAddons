@@ -81,17 +81,17 @@ object AutoExcavator : Module(
                 }
             }
             if (slot > 80) {
-                if (name?.contains("Fossil") == true) {
-                    shouldClick = false
-                    menuOne.clear()
-                    menuTwo.clear()
-                    modMessage("Fossil found! You can now use a other mod to find the fossil")
-                    //TODO implement a way to automatically use the algorithm for finding fossil and then click these slots but for now we will just exit
-                    return
-                }
+                
                 shouldClick = true
             }
-
+            if (slot <= 53 && name?.contains("Fossil") == true) {
+                shouldClick = false
+                menuOne.clear()
+                menuTwo.clear()
+                modMessage("Fossil found! You can now use a other mod to find the fossil")
+                //TODO implement a way to automatically use the algorithm for finding fossil and then click these slots but for now we will just exit
+                return
+            }
             
         }
         if (phase == 2) {
