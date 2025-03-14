@@ -1,7 +1,7 @@
 package catgirlroutes.commands.impl
 
 import catgirlroutes.CatgirlRoutes.Companion.mc
-import catgirlroutes.commands.commodore
+import com.github.stivais.commodore.Commodore
 import catgirlroutes.module.impl.dungeons.puzzlesolvers.IceFillSolver
 import catgirlroutes.utils.BlockAura
 import catgirlroutes.utils.BlockAura.blockArray
@@ -27,7 +27,7 @@ import net.minecraft.network.play.client.C02PacketUseEntity
 import net.minecraft.util.BlockPos
 
 
-val devCommands = commodore("dev") {
+val devCommands = Commodore("dev") {
 
     literal("help").runs { // todo: add description
         modMessage("""

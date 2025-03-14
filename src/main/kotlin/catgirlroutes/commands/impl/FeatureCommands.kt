@@ -1,6 +1,6 @@
 package catgirlroutes.commands.impl
 
-import catgirlroutes.commands.commodore
+import com.github.stivais.commodore.Commodore
 import catgirlroutes.module.impl.dungeons.LavaClip
 import catgirlroutes.module.impl.dungeons.SecretAura
 import catgirlroutes.module.impl.misc.InventoryButtons
@@ -8,25 +8,25 @@ import catgirlroutes.module.impl.player.BlockClip
 import catgirlroutes.module.impl.player.PearlClip
 import catgirlroutes.utils.ChatUtils.modMessage
 
-val pearlClip = commodore("pearlclip") {
+val pearlClip = Commodore("pearlclip") {
     runs { depth: Double? ->
         PearlClip.pearlClip(depth ?: 0.0)
     }
 }
 
-val lavaClip = commodore("lavaclip") {
+val lavaClip = Commodore("lavaclip") {
     runs { depth: Double? ->
         LavaClip.lavaClipToggle(depth ?: 0.0)
     }
 }
 
-val blockClip = commodore("blockclip") {
+val blockClip = Commodore("blockclip") {
     runs {  distance: Double? ->
         BlockClip.blockClip(distance ?: 1.0)
     }
 }
 
-val aura = commodore("cgaaura") {
+val aura = Commodore("cgaaura") {
 
     literal("help").runs {
         modMessage("""
@@ -53,7 +53,7 @@ val aura = commodore("cgaaura") {
     }
 }
 
-val inventoryButtons = commodore("cgabuttons") {
+val inventoryButtons = Commodore("cgabuttons") {
     runs {
         InventoryButtons.editMode.doAction()
     }
