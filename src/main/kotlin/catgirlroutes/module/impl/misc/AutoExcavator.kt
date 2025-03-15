@@ -14,15 +14,20 @@ import net.minecraft.network.play.server.S2EPacketCloseWindow
 import net.minecraft.network.play.server.S2FPacketSetSlot
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent
+import kotlin.random.Random
 
 object AutoExcavator : Module(
     name = "Auto Excavator",
     category = Category.MISC
 ) {
     val clickDelay = NumberSetting("Click Delay", 150.0, 0.0, 300.0, 10.0, unit = "ms")
+    val randomDelay = NumberSetting("Random Delay", 0.0, 0.0, 100.0, 5.0, unit = "ms")
+    val firstClickDelay = NumberSetting("First Click Delay", 300.0, 0.0, 1000.0, 10.0, unit = "ms")
     init {
         this.addSettings(
-            clickDelay
+            clickDelay,
+            randomDelay,
+            firstClickDelay
         )
     }
     var phase = 1
@@ -37,7 +42,7 @@ object AutoExcavator : Module(
     fun onS2D(event: PacketReceiveEvent) {
         if (!this.enabled) return
         if (event.packet !is S2DPacketOpenWindow) return
-        lastClick = System.currentTimeMillis() + 300
+        lastClick = System.currentTimeMillis() + firstClickDelay.value.toLong()
         val title = event.packet.windowTitle.unformattedText
         if (!title.contains("Fossil")) return
         shouldClick = false
@@ -62,7 +67,7 @@ object AutoExcavator : Module(
         val name = itemStack?.displayName //Dirt
         val metadata = itemStack?.metadata
         val registryName = item?.registryName //minecraft:stained_glass_pane
-
+                
         if (phase == 1) {
             if (registryName == "minecraft:stained_glass_pane") {
                 when (metadata) {
@@ -76,8 +81,18 @@ object AutoExcavator : Module(
                 }
             }
             if (slot > 80) {
+                
                 shouldClick = true
             }
+            if (slot <= 53 && name?.endsWith("Fossil") == true) {
+                shouldClick = false
+                menuOne.clear()
+                menuTwo.clear()
+                modMessage("Fossil found! You can now use a other mod to find the fossil")
+                //TODO implement a way to automatically use the algorithm for finding fossil and then click these slots but for now we will just exit
+                return
+            }
+            
         }
         if (phase == 2) {
             if (name?.contains("Chisel") == true && slot > 53) {
@@ -95,6 +110,8 @@ object AutoExcavator : Module(
             if (slot > 80) {
                 shouldClick = true
             }
+
+            
         }
     }
 
@@ -102,7 +119,7 @@ object AutoExcavator : Module(
     fun onTick(event: ClientTickEvent) {
         if (mc.ingameGUI == null) return
         if (!shouldClick) return
-        if (lastClick + clickDelay.value > System.currentTimeMillis()) return
+        if (lastClick + clickDelay.value + (if (randomDelay.value <= 0) 0.0 else Random.nextDouble(0.0, randomDelay.value)) > System.currentTimeMillis()) return
         lastClick = System.currentTimeMillis()
         if (phase == 2) {
             if (!scrapFound || !chiselFound) {
