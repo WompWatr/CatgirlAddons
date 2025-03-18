@@ -3,10 +3,10 @@ name: Run Gradle Build
 on:
   push:
     branches:
-      - main
+      - updated
   pull_request:
     branches:
-      - main
+      - updated
 
 jobs:
   gradle:
