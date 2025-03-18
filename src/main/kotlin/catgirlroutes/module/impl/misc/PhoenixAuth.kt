@@ -17,7 +17,7 @@ object PhoenixAuth: Module(
     Category.MISC,
     "Automatically authenticate and toggle modules when connecting to your phoenix proxy"
 ) {
-    private val phoenixProxy = StringSetting("Proxy IP", "hypixelcgaproxy.duckdns.org", 9999, "Your phoenix proxy IP")
+    private val phoenixProxy = StringSetting("Proxy IP", "example.org", 9999, "Your phoenix proxy IP")
     private val phoenixModule = StringSelectorSetting("Module", "autoterms", arrayListOf("autoterms", "zeropingterminals"))
     private var onPenix = false
 
