@@ -9,10 +9,11 @@ import catgirlroutes.utils.render.HUDRenderUtils
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.util.ResourceLocation
+import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.GL11
 import java.awt.Color
 
-class InventoryButtonEditor : GuiScreen() {
+class InventoryButtonEditor : GuiScreen() { // todo: recode prob
 
     private val invWidth: Int = 176
     private val invHeight: Int = 166
@@ -53,7 +54,7 @@ class InventoryButtonEditor : GuiScreen() {
                 InventoryButton.colour to InventoryButton.borderColour
             }
             button.render(invX.toDouble(), invY.toDouble(), colour, borderColour)
-            if (!button.isActive && !button.isEquipment) FontUtil.drawString("+", x + 6, y + 5)
+            if (!button.isActive && !button.isEquipment) FontUtil.drawTotalCenteredString("+", (x + 8).toDouble(), (y + 8).toDouble())
         }
 
         editingButton?.let {
@@ -126,6 +127,10 @@ class InventoryButtonEditor : GuiScreen() {
         editingButton?.let {
             if (commandTextField.keyTyped(typedChar, keyCode)) it.command = commandTextField.text
             if (iconTextField.keyTyped(typedChar, keyCode)) it.icon = iconTextField.text
+            if (keyCode == Keyboard.KEY_ESCAPE) {
+                this.editingButton = null
+                return
+            }
         }
         super.keyTyped(typedChar, keyCode)
     }

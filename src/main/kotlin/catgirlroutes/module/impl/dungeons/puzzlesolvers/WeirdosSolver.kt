@@ -3,7 +3,7 @@ package catgirlroutes.module.impl.dungeons.puzzlesolvers
 import catgirlroutes.CatgirlRoutes.Companion.mc
 import catgirlroutes.module.Category
 import catgirlroutes.module.Module
-import catgirlroutes.module.impl.dungeons.puzzlesolvers.Puzzles.weirdoSolver
+import catgirlroutes.module.impl.dungeons.puzzlesolvers.Puzzles.weirdosSolver
 import catgirlroutes.utils.BlockAura
 import catgirlroutes.utils.BlockAura.blockArray
 import catgirlroutes.utils.ChatUtils.modMessage
@@ -72,10 +72,10 @@ object AutoWeirdos: Module(
      * Handles the removal of the chests in the room and puts the correct chest back.
      */
     fun onTick() {
-        if (!inDungeons || !weirdoSolver.value) return
+        if (!inDungeons || !weirdosSolver.value) return
         if (currentRoomName != "Three Weirdos") return
         if (addedChest) return
-        if (!Puzzles.autoWeirdos.value) return
+        if (!Puzzles.weirdosAuto.value) return
 
         mc.theWorld.loadedEntityList
             .filter { it is EntityArmorStand && it.name.contains("CLICK") }
@@ -93,7 +93,7 @@ object AutoWeirdos: Module(
     }
 
     fun renderWorld() {
-        if (!inDungeons || !weirdoSolver.value) return
+        if (!inDungeons || !weirdosSolver.value) return
         if (currentRoomName != "Three Weirdos") return
         val correctNPC = mc.theWorld.loadedEntityList.find { it is EntityArmorStand && it.name.noControlCodes == correctBozo } ?: return
         val room = currentRoom ?: return

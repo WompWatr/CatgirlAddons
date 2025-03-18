@@ -39,26 +39,26 @@ object Secrets : Module( // todo: use secretevent
     )
 
     private val chimeDropdown = DropdownSetting("Chime dropdown")
-    private val secretChime = BooleanSetting("Secret chime").withDependency { chimeDropdown.enabled }
-    private val chimeSound = StringSelectorSetting("Chime sound", "note.pling", soundOptions, "Sound selection.").withDependency { chimeDropdown.enabled && secretChime.enabled }
-    private val chimeCustom = StringSetting("Custom chime sound", "note.pling", description = "Name of a custom sound to play. This is used when Custom is selected in the Sound setting.").withDependency { chimeDropdown.enabled && chimeSound.selected == "Custom" && secretChime.enabled }
+    private val secretChime = BooleanSetting("Secret chime").withDependency(chimeDropdown)
+    private val chimeSound = StringSelectorSetting("Chime sound", "note.pling", soundOptions, "Sound selection.").withDependency(chimeDropdown) { secretChime.enabled }
+    private val chimeCustom = StringSetting("Custom chime sound", "note.pling", description = "Name of a custom sound to play. This is used when Custom is selected in the Sound setting.").withDependency(chimeDropdown) { chimeSound.selected == "Custom" && secretChime.enabled }
 
-    private val dropSound = StringSelectorSetting("Drop sound", "note.pling", soundOptions, "Sound selection for item pickups.").withDependency { chimeDropdown.enabled && secretChime.enabled  }
-    private val dropCustom = StringSetting("Custom drop sound", "note.pling", description = "Name of a custom sound to play for item pickups. This is used when Custom is selected in the DropSound setting.").withDependency { chimeDropdown.enabled && dropSound.selected == "Custom" && secretChime.enabled }
+    private val dropSound = StringSelectorSetting("Drop sound", "note.pling", soundOptions, "Sound selection for item pickups.").withDependency(chimeDropdown) { secretChime.enabled  }
+    private val dropCustom = StringSetting("Custom drop sound", "note.pling", description = "Name of a custom sound to play for item pickups. This is used when Custom is selected in the DropSound setting.").withDependency(chimeDropdown) { dropSound.selected == "Custom" && secretChime.enabled }
 
     private val highlightDropdown = DropdownSetting("Highlight dropdown")
-    private val secretClicks = BooleanSetting("Secret clicks").withDependency { highlightDropdown.enabled }
-    private val outline = BooleanSetting("Outline").withDependency { highlightDropdown.enabled && secretClicks.enabled }
-    private val clickColour = ColorSetting("Click colour", Color.GREEN).withDependency { highlightDropdown.enabled && secretClicks.enabled }
-    private val lockedColour = ColorSetting("Locked colour", Color.RED).withDependency { highlightDropdown.enabled && secretClicks.enabled }
+    private val secretClicks = BooleanSetting("Secret clicks").withDependency(highlightDropdown)
+    private val outline = BooleanSetting("Outline").withDependency(highlightDropdown) { secretClicks.enabled }
+    private val clickColour = ColorSetting("Click colour", Color.GREEN).withDependency(highlightDropdown) { secretClicks.enabled }
+    private val lockedColour = ColorSetting("Locked colour", Color.RED).withDependency(highlightDropdown){ secretClicks.enabled }
 
     private val itemDropdown = DropdownSetting("Item dropdown")
-    private val itemHighlight = BooleanSetting("Item highlight").withDependency { itemDropdown.enabled }
-    private val closeColour = ColorSetting("Close colour", Color.GREEN).withDependency { itemDropdown.enabled && itemHighlight.enabled }
-    private val farColour = ColorSetting("Far colour", Color.RED).withDependency { itemDropdown.enabled && itemHighlight.enabled }
-    private val playSound = BooleanSetting("Play sound").withDependency { itemDropdown.enabled && itemHighlight.enabled }
-    private val itemSound = StringSelectorSetting("Sound", "note.pling", soundOptions, "Sound selection.").withDependency { itemDropdown.enabled && itemHighlight.enabled && playSound.enabled }
-    private val itemCustom = StringSetting("Custom sound", "note.pling").withDependency { itemDropdown.enabled && itemHighlight.enabled && playSound.enabled && itemSound.selected == "Custom" }
+    private val itemHighlight = BooleanSetting("Item highlight").withDependency(itemDropdown)
+    private val closeColour = ColorSetting("Close colour", Color.GREEN).withDependency(itemDropdown) { itemHighlight.enabled }
+    private val farColour = ColorSetting("Far colour", Color.RED).withDependency(itemDropdown) { itemHighlight.enabled }
+    private val playSound = BooleanSetting("Play sound").withDependency(itemDropdown) { itemHighlight.enabled }
+    private val itemSound = StringSelectorSetting("Sound", "note.pling", soundOptions, "Sound selection.").withDependency(itemDropdown) { itemHighlight.enabled && playSound.enabled }
+    private val itemCustom = StringSetting("Custom sound", "note.pling").withDependency(itemDropdown) { itemHighlight.enabled && playSound.enabled && itemSound.selected == "Custom" }
 
     private val volume = NumberSetting("Volume", 1.0, 0.0, 1.0, 0.01, "Volume of the sound.").withDependency { secretChime.enabled || playSound.enabled }
     private val pitch = NumberSetting("Pitch", 2.0, 0.0, 2.0, 0.01, "Pitch of the sound.").withDependency { secretChime.enabled || playSound.enabled}

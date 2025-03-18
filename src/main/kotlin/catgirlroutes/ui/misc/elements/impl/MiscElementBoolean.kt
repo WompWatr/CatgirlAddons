@@ -4,9 +4,8 @@ import catgirlroutes.ui.animations.impl.ColorAnimation
 import catgirlroutes.ui.clickgui.util.ColorUtil
 import catgirlroutes.ui.clickgui.util.FontUtil
 import catgirlroutes.ui.misc.elements.MiscElement
-import catgirlroutes.utils.render.HUDRenderUtils.drawOutlinedRectBorder
+import catgirlroutes.utils.render.HUDRenderUtils.drawRoundedOutline
 import catgirlroutes.utils.render.HUDRenderUtils.drawRoundedBorderedRect
-import catgirlroutes.utils.render.HUDRenderUtils.drawRoundedRect
 import java.awt.Color
 
 /**
@@ -39,7 +38,7 @@ class MiscElementBoolean(
     override fun render(mouseX: Int, mouseY: Int) {
         val colour = colourAnimation.get(ColorUtil.clickGUIColor, this.colour, this.enabled)
         drawRoundedBorderedRect(x + this.gap, y + this.gap, width - this.gap * 2, height - this.gap * 2, this.radius, this.thickness, colour, colour)
-        drawOutlinedRectBorder(
+        drawRoundedOutline(
             x, y, width, height, this.radius, this.thickness,
             if (this.isHovered(mouseX, mouseY)) ColorUtil.clickGUIColor else Color(ColorUtil.outlineColor)
         )

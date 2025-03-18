@@ -12,6 +12,7 @@ import catgirlroutes.module.settings.Setting.Companion.withDependency
 import catgirlroutes.module.settings.Visibility
 import catgirlroutes.module.settings.impl.*
 import catgirlroutes.ui.clickgui.util.ColorUtil
+import catgirlroutes.ui.clickgui.util.ColorUtil.withAlpha
 import catgirlroutes.ui.hud.HudElement
 import catgirlroutes.ui.misc.elements.impl.MiscElementText
 import catgirlroutes.ui.misc.searchoverlay.AhBzSearch
@@ -19,6 +20,9 @@ import catgirlroutes.ui.misc.searchoverlay.OverlayType
 import catgirlroutes.utils.LocationManager.inSkyblock
 import catgirlroutes.utils.Utils.lore
 import catgirlroutes.utils.Utils.noControlCodes
+import catgirlroutes.utils.render.HUDRenderUtils
+import catgirlroutes.utils.render.HUDRenderUtils.drawPlayerOnScreen
+import catgirlroutes.utils.render.HUDRenderUtils.drawRoundedBorderedRect
 import catgirlroutes.utils.render.HUDRenderUtils.highlight
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.gui.inventory.GuiChest
@@ -46,18 +50,23 @@ object Inventory : Module(
     tag = TagType.WHIP
 ) { // todo: neu type shit search overlay (jei shit on the side)
 
-    private val searchBar = BooleanSetting("Search bar", description = "Use \",\" separator to search for things like attributes")
-    private val bgColour_ = ColorSetting("Background colour", Color(ColorUtil.buttonColor)).withDependency { searchBar.enabled }
-    private val outlineColour_ = ColorSetting("Outline colour", ColorUtil.clickGUIColor).withDependency { searchBar.enabled }
-    private val itemList = BooleanSetting("Item list").withDependency { searchBar.enabled }
+    private val invDropdown = DropdownSetting("Inventory")
+    private val invHUD = BooleanSetting("Inventory HUD").withDependency(this.invDropdown)
+    private val playerModel = BooleanSetting("Player model").withDependency(invDropdown) { this.invHUD.enabled }
+
+    private val sbDropdown = DropdownSetting("Search Bar")
+    private val searchBar = BooleanSetting("Search bar", description = "Use \",\" separator to search for things like attributes").withDependency(this.sbDropdown)
+    private val bgColour_ = ColorSetting("Background colour", Color(ColorUtil.buttonColor)).withDependency(this.sbDropdown) { searchBar.enabled }
+    private val outlineColour_ = ColorSetting("Outline colour", ColorUtil.clickGUIColor).withDependency(this.sbDropdown) { searchBar.enabled }
+    private val itemList = BooleanSetting("Item list").withDependency(this.sbDropdown) { searchBar.enabled }
 
     private val ahDropdown = DropdownSetting("Auction house")
-    private val auctionOverlay = BooleanSetting("Auction search").withDependency { ahDropdown.enabled }
+    private val auctionOverlay = BooleanSetting("Auction search").withDependency(ahDropdown)
 
     private val bzDropdown = DropdownSetting("Bazaar")
-    private val bazaarOverlay = BooleanSetting("Bazaar search").withDependency { bzDropdown.enabled }
+    private val bazaarOverlay = BooleanSetting("Bazaar search").withDependency(bzDropdown)
 
-    private val ctrlF = BooleanSetting("Ctrl + F to search") // todo: Make it click on signs in other guis (price, quantity, etc)
+    private val ctrlF = BooleanSetting("Ctrl + F to search").withDependency { this.auctionOverlay.enabled || this.bazaarOverlay.enabled } // todo: Make it click on signs in other guis (price, quantity, etc)
 
     val ahHistory = StringSetting("AH_SEARCH", "[\"\"]",  5000, visibility = Visibility.HIDDEN)
     val bzHistory = StringSetting("BZ_SEARCH", "[\"\"]", 5000, visibility = Visibility.HIDDEN)
@@ -74,6 +83,11 @@ object Inventory : Module(
 
     init {
         addSettings(
+            this.invDropdown,
+            this.invHUD,
+            this.playerModel,
+
+            this.sbDropdown,
             this.searchBar,
             this.bgColour_,
             this.outlineColour_,
@@ -215,6 +229,27 @@ object Inventory : Module(
     // dummy HudElement to move search bar position
     @RegisterHudElement
     object SearchBar : HudElement(this, this.barX, this.barY, 200, 25, this.barScale) { override fun renderHud() {  } }
+
+    @RegisterHudElement
+    object InventoryHUD : HudElement(this, width = 2 + 22 * 9, height = 2 + 22 * 3) {
+        override fun renderHud() {
+            if (!invHUD.enabled) return
+
+            this.width = 2 + if (playerModel.enabled) 22 * 11 else 22 * 9
+            drawRoundedBorderedRect(0.0, 0.0, this.width.toDouble(), this.height.toDouble(), 5.0, 2.0, Color(139, 139, 139, 155), Color(250, 250, 250, 155))
+            if (playerModel.enabled) drawPlayerOnScreen(this.width - 22.5, 62.5, this.partialTicks, 30.0)
+
+            val stacks = mc.thePlayer.inventory.mainInventory.drop(9)
+            var y = -20.0
+            stacks.forEachIndexed { i, stack ->
+                if (i % 9 == 0) y += 22.0
+                val x = 2 + 22.0 * (i % 9)
+                drawRoundedBorderedRect(x, y, 20.0, 20.0, 5.0, 2.0, Color(139, 139, 139, 155), Color(250, 250, 250, 155))
+                stack?.let { HUDRenderUtils.drawItemStackWithText(it, x + 2.5, y + 2.5) }
+            }
+        }
+
+    }
 
     private fun matchType(name: String, lore: String, string: String) = when {
         name.isEmpty() || lore.isEmpty() || string.isEmpty() -> 0

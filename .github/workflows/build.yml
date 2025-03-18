@@ -1,7 +1,12 @@
 name: Run Gradle Build
+
 on:
-  - push
-  - pull_request
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   gradle:
@@ -22,8 +27,23 @@ jobs:
       - name: Execute Gradle build
         run: ./gradlew build
 
-      - name: Upload built mod JAR
+      - name: Rename JAR file
+        run: |
+          BRANCH_NAME=${GITHUB_REF_NAME//\//-}
+          BUILD_NUMBER=$GITHUB_RUN_NUMBER
+
+          if ls build/libs/*.jar 1> /dev/null 2>&1; then
+            for file in build/libs/*.jar; do
+              filename=$(basename "$file")
+              new_name="cga-$BRANCH_NAME-$BUILD_NUMBER.jar"
+              mv "$file" "build/libs/$new_name"
+            done
+          else
+            echo "No JAR file found in build/libs/"
+          fi
+
+      - name: Upload JAR file
         uses: actions/upload-artifact@v4.3.0
         with:
-          name: CatgirlAddons Build
-          path: build/libs/*.jar
+          name: cga-${{ github.ref_name }}-${{ github.run_number }}
+          path: build/libs/cga-${{ github.ref_name }}-${{ github.run_number }}.jar

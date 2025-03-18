@@ -22,6 +22,7 @@ import com.google.gson.JsonPrimitive
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.gui.inventory.GuiInventory
 import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.init.Items
 import net.minecraft.network.play.server.S2DPacketOpenWindow
 import net.minecraft.network.play.server.S30PacketWindowItems
 import net.minecraftforge.client.event.GuiScreenEvent
@@ -110,15 +111,17 @@ object InventoryButtons : Module(
         if (!shouldScanEq || event.packet !is S30PacketWindowItems) return
         val buttons = allButtons.filter { it.isEquipment }
         this.equipmentSlots.forEachIndexed { i, slot ->
-            val itemStack = event.packet.itemStacks[slot]
-            buttons[i].icon = if (itemStack.displayName.noControlCodes == "Empty Equipment Slot") {
-                "barrier"
-            } else {
-                val tagString = itemStack.toJson()
-                if (!tagString.has("internalname")) {
-                    tagString.add("internalname", JsonPrimitive("_"))
+            val itemStack = event.packet.itemStacks?.getOrNull(slot) ?: return@forEachIndexed
+            buttons[i].icon = when {
+                itemStack.displayName.noControlCodes == "Empty Equipment Slot" -> "barrier"
+                itemStack.item == Items.skull -> {
+                    val tagString = itemStack.toJson()
+                    if (!tagString.has("internalname")) {
+                        tagString.add("internalname", JsonPrimitive("_"))
+                    }
+                    tagString.toString()
                 }
-                tagString.toString()
+                else -> return
             }
             InventoryButtonsConfig.save()
         }

@@ -27,11 +27,11 @@ object AutoKick: Module(
     private val floorSelector = StringSelectorSetting("Floor", "F7", arrayListOf("F7", "M4", "M5", "M6", "M7"))
 
     private val pbDropdown = DropdownSetting("PBs")
-    private val f7Pb = StringSetting("F7 PB", "5:00").withDependency { pbDropdown.enabled }
-    private val m4Pb = StringSetting("M4 PB", "5:00").withDependency { pbDropdown.enabled }
-    private val m5Pb = StringSetting("M5 PB", "5:00").withDependency { pbDropdown.enabled }
-    private val m6Pb = StringSetting("M6 PB", "5:00").withDependency { pbDropdown.enabled }
-    private val m7Pb = StringSetting("M7 PB", "5:00").withDependency { pbDropdown.enabled }
+    private val f7Pb = StringSetting("F7 PB", "5:00").withDependency(pbDropdown)
+    private val m4Pb = StringSetting("M4 PB", "5:00").withDependency(pbDropdown)
+    private val m5Pb = StringSetting("M5 PB", "5:00").withDependency(pbDropdown)
+    private val m6Pb = StringSetting("M6 PB", "5:00").withDependency(pbDropdown)
+    private val m7Pb = StringSetting("M7 PB", "5:00").withDependency(pbDropdown)
 
     enum class FloorEnums(
         val floor: String,

@@ -102,7 +102,7 @@ class MiscElementSelector(
             )
 
             if (this.isSelected(option) || this.isHovered(mouseX, mouseY, xOff = (xPos - this.x).toInt(), yOff = (yPos - this.y).toInt())) {
-                HUDRenderUtils.drawOutlinedRectBorder(xPos, yPos, this.width, this.height, this.radius, this.thickness, ColorUtil.clickGUIColor)
+                HUDRenderUtils.drawRoundedOutline(xPos, yPos, this.width, this.height, this.radius, this.thickness, ColorUtil.clickGUIColor)
             }
 
             FontUtil.drawTotalCenteredString(option.capitalizeOnlyFirst(), xPos + this.width / 2.0, yPos + this.height / 2.0)

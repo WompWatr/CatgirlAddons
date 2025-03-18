@@ -8,13 +8,13 @@ import catgirlroutes.ui.clickgui.util.ColorUtil.withAlpha
 import catgirlroutes.ui.clickgui.util.FontUtil
 import catgirlroutes.ui.clickgui.util.FontUtil.capitalizeOnlyFirst
 import catgirlroutes.ui.clickgui.util.FontUtil.fontHeight
+import catgirlroutes.ui.clickgui.util.FontUtil.wrapText
 import catgirlroutes.ui.misc.elements.impl.MiscElementButton
 import catgirlroutes.ui.misc.elements.impl.MiscElementText
 import catgirlroutes.utils.ChatUtils.debugMessage
 import catgirlroutes.utils.render.HUDRenderUtils.drawRoundedBorderedRect
 import catgirlroutes.utils.render.HUDRenderUtils.resetScissor
 import catgirlroutes.utils.render.HUDRenderUtils.scissor
-import catgirlroutes.utils.wrapText
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.GlStateManager
@@ -25,17 +25,17 @@ import org.lwjgl.opengl.GL11
 import java.awt.Color
 import java.io.IOException
 
-class ClickGUI : GuiScreen() { // todo: fix font rendering
+class ClickGUI : GuiScreen() { // todo: module description, fix element description
 
     var x: Double = 0.0
     var y: Double = 0.0
 
-    val guiWidth = 605.0
-    val guiHeight = 335.0
+    val guiWidth = 305.0
+    val guiHeight = 230.0
 
-    val categoryWidth = 105.0
+    val categoryWidth = 85.0
 
-    var selectedWindow: Window? = null
+    var selectedWindow: Window
 
     val searchBar = MiscElementText(
         width = guiWidth - categoryWidth - 5.0,
@@ -56,16 +56,14 @@ class ClickGUI : GuiScreen() { // todo: fix font rendering
             windows.add(Window(category, this))
         }
 
-        if (selectedWindow == null) {
-            selectedWindow = windows[1] // render
-        }
+        this.selectedWindow = windows[1] // render
     }
 
     override fun initGui() {
         sr = ScaledResolution(mc)
         scale = CLICK_GUI_SCALE / sr.scaleFactor
-        x = ((sr.scaledWidth_double / 2.0) - (guiWidth / 2.0) * scale) / scale
-        y = ((sr.scaledHeight_double / 2.0) - (guiHeight / 2.0) * scale) / scale
+        x = ((sr.scaledWidth / 2.0) - (guiWidth / 2.0) * scale) / scale
+        y = ((sr.scaledHeight / 2.0) - (guiHeight / 2.0) * scale) / scale
 
         searchBar.x = this.x + categoryWidth + 5.0
         searchBar.y = this.y
@@ -87,17 +85,20 @@ class ClickGUI : GuiScreen() { // todo: fix font rendering
 
         var categoryOffset = 25.0
 
-        drawRoundedBorderedRect(x - 5.0, y - 5.0, guiWidth + 10.0, guiHeight + 10.0, 3.0, 2.0, Color(ColorUtil.bgColor), Color(ColorUtil.bgColor)) // ColorUtil.clickGUIColor
+        if (ClickGui.showUsageInfo.enabled) renderUsage()
+
+        drawRoundedBorderedRect(x - 5.0, y - 5.0, guiWidth + 10.0, guiHeight + 10.0, 3.0, 2.0, Color(ColorUtil.bgColor), ColorUtil.clickGUIColor)
         drawRoundedBorderedRect(x, y, categoryWidth, guiHeight, 3.0, 2.0, Color(ColorUtil.bgColor), ColorUtil.clickGUIColor)
 
         drawRoundedBorderedRect(x + categoryWidth + 5.0, y + 25.0, guiWidth - categoryWidth - 5.0, guiHeight - 25.0, 3.0, 2.0, Color(ColorUtil.bgColor), ColorUtil.clickGUIColor)
 
-        val titleWidth = FontUtil.getStringWidth(ClickGui.clientName.text, scale = 1.1)
-        FontUtil.drawStringWithShadow(ClickGui.clientName.text, x + categoryWidth / 2.0 - titleWidth / 2.0, y + 6.0, scale = 1.1)
+        val titleWidth = FontUtil.getStringWidth(ClickGui.clientName.text)
+        FontUtil.drawStringWithShadow(ClickGui.clientName.text, x + categoryWidth / 2.0 - titleWidth / 2.0, y + 6.0)
 
         this.searchBar.apply {
             outlineColour = Color(ColorUtil.outlineColor)
             outlineFocusColour = ColorUtil.clickGUIColor
+            bgColour = Color(ColorUtil.bgColor)
             render(scaledMouseX, scaledMouseY)
         }
         categoryButtons.clear()
@@ -105,17 +106,18 @@ class ClickGUI : GuiScreen() { // todo: fix font rendering
         val scissor = scissor(x, y + 26.0, guiWidth, guiHeight - 27.0)
         for (window in windows) {
 
-            val offset: Double = if (window.category == Category.SETTINGS) guiHeight - 25.0 else categoryOffset
+            val offset: Double = if (window.category == Category.SETTINGS) guiHeight - 20.0 else categoryOffset
 
             val categoryButton = MiscElementButton(
                 "",
                 x + 5.0,
                 y + offset + 2.0,
                 categoryWidth - 9.0,
-                20.0,
+                14.0,
                 1.0,
                 3.0,
-                outlineColour = Color.WHITE.withAlpha(0)
+                outlineColour = Color.WHITE.withAlpha(0),
+                outlineHoverColour = Color.WHITE.withAlpha(0)
             ) { this.selectedWindow = window }
 
             if (this.searchBar.text.isNotEmpty()) {
@@ -131,15 +133,15 @@ class ClickGUI : GuiScreen() { // todo: fix font rendering
             window.drawScreen(scaledMouseX, scaledMouseY, partialTicks)
 
             if (this.selectedWindow == window) {
-                drawRoundedBorderedRect(x + 5.0, y + offset + 2.0, categoryWidth - 9.0, 20.0, 3.0, 1.0, Color(ColorUtil.outlineColor), Color(ColorUtil.outlineColor))
+                drawRoundedBorderedRect(x + 5.0, y + offset + 2.0, categoryWidth - 9.0, 14.0, 3.0, 1.0, Color(ColorUtil.outlineColor), Color(ColorUtil.outlineColor))
             }
-            FontUtil.drawStringWithShadow(window.category.name.capitalizeOnlyFirst(), x + 10.0, y + offset + 8.0, scale = 1.1)
+            FontUtil.drawStringWithShadow(window.category.name.capitalizeOnlyFirst(), x + 12.0, y + offset + 5.0)
 
-            if (window.category != Category.SETTINGS) categoryOffset += 20.0 + 2.0
+            if (window.category != Category.SETTINGS) categoryOffset += 14.0
         }
         resetScissor(scissor)
 
-        this.description.forEach { (_, desc) -> desc.draw() }
+        this.description.forEach { (_, desc) -> if (this.selectedWindow.inModule) desc.draw() } // todo: fix this schizo shit
 
         GlStateManager.popMatrix()
         mc.gameSettings.guiScale = prevScale
@@ -152,27 +154,23 @@ class ClickGUI : GuiScreen() { // todo: fix font rendering
 
         var i = Mouse.getEventDWheel()
         if (i != 0) {
-            if (i > 1) {
-                i = 1
-            }
-            if (i < -1) {
-                i = -1
-            }
-            if (isShiftKeyDown()) {
-                i *= 7
-            }
+            i = i.coerceIn(-1, 1)
+            if (isShiftKeyDown()) i *= 7
             debugMessage(scaledMouseX)
             debugMessage(scaledMouseY)
 
             for (window in windows.reversed()) {
                 if (window.scroll(i, scaledMouseX, scaledMouseY)) return
             }
+            this.selectedWindow.moduleButtons.forEach { if (it.scroll(i, scaledMouseX, scaledMouseY)) return }
         }
     }
 
     override fun mouseClicked(mouseX: Int, mouseY: Int, mouseButton: Int) {
         this.searchBar.mouseClicked(scaledMouseX, scaledMouseY, mouseButton)
-        categoryButtons.forEach { it.mouseClicked(scaledMouseX, scaledMouseY, mouseButton) }
+        categoryButtons.firstOrNull { it.mouseClicked(scaledMouseX, scaledMouseY, mouseButton) }?.let {
+            selectedWindow.moduleButtons.forEach { moduleButton -> moduleButton.extended = false }
+        }
         windows.reversed().forEach { if (it.mouseClicked(scaledMouseX, scaledMouseY, mouseButton)) return }
         super.mouseClicked(scaledMouseX, scaledMouseY, mouseButton)
     }
@@ -183,10 +181,16 @@ class ClickGUI : GuiScreen() { // todo: fix font rendering
     }
 
     override fun keyTyped(typedChar: Char, keyCode: Int) {
-        this.searchBar.keyTyped(typedChar, keyCode)
+        if (this.searchBar.keyTyped(typedChar, keyCode)) return
         windows.reversed().forEach { if (it.keyTyped(typedChar, keyCode)) return }
-        if (isCtrlKeyDown() && keyCode == Keyboard.KEY_F) {
-            this.searchBar.focus = true
+        when (keyCode) {
+            Keyboard.KEY_F -> if (isCtrlKeyDown()) this.searchBar.focus = true
+            Keyboard.KEY_ESCAPE -> {
+                if (this.searchBar.text.isNotEmpty()) {
+                    this.searchBar.text = ""
+                    return
+                }
+            }
         }
         super.keyTyped(typedChar, keyCode)
     }
@@ -208,13 +212,30 @@ class ClickGUI : GuiScreen() { // todo: fix font rendering
     val scaledMouseX get() = MathHelper.ceiling_double_int(Mouse.getX() / CLICK_GUI_SCALE)
     val scaledMouseY get() = MathHelper.ceiling_double_int( (mc.displayHeight - Mouse.getY()) / CLICK_GUI_SCALE)
 
-    data class Description(var text: String?, var x: Double, var y: Double) {
-        private val shouldRender: Boolean
-            get() = text != null && text != ""
+    private fun renderUsage() {
+        val lines = listOf("GUI Usage:",
+            "Left click Module Buttons to toggle the Module.",
+            "Right click Module Buttons to open settings.",
+            "Middle click or Shift click Module Buttons to change the Module key bind.",
+            "Disable this Overlay in the Click Gui Module in the Render Category.",
+            "You can change Click GUI style in settings"
+        )
 
+        lines.forEachIndexed { i, text ->
+            FontUtil.drawString(
+                text,
+                10.0,
+                10.0 + FontUtil.getScaledFontHeight(1.3).toDouble() * i,
+                ColorUtil.clickGUIColor.rgb,
+                scale = 1.3
+            )
+        }
+    }
+
+    data class Description(var text: String = "", var x: Double, var y: Double) {
         fun draw() {
-            if (!shouldRender) return
-            val description = wrapText(text!!, 150.0)
+            if (this.text.isEmpty()) return
+            val description = wrapText(text, 150.0)
             y -= description.size * fontHeight + 6.0
             x += 6.0
             drawRoundedBorderedRect(

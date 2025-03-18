@@ -3,10 +3,12 @@ package catgirlroutes.ui.notification
 import catgirlroutes.CatgirlRoutes.Companion.RESOURCE_DOMAIN
 import catgirlroutes.CatgirlRoutes.Companion.mc
 import catgirlroutes.ui.clickgui.util.ColorUtil
+import catgirlroutes.ui.clickgui.util.FontUtil
+import catgirlroutes.ui.clickgui.util.FontUtil.fontHeight
+import catgirlroutes.ui.clickgui.util.FontUtil.wrapText
 //import catgirlroutes.ui.clickgui.util.ColorUtil
 import catgirlroutes.utils.Notifications
 import catgirlroutes.utils.render.HUDRenderUtils
-import catgirlroutes.utils.wrapText
 import net.minecraft.client.gui.Gui
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.util.ResourceLocation
@@ -52,17 +54,17 @@ class Notification( // todo recode
         } ?: 0
 
         val lines = wrapText(this.description, width - 12 - iconOffset)
-        val lineSpacing = mc.fontRendererObj.FONT_HEIGHT + 2
+        val lineSpacing = fontHeight + 2
         val totalTextHeight = (lines.size + 1) * lineSpacing
-        val textX = x.toFloat() + iconOffset + 3
+        val textX = x + iconOffset + 3
         val textY = y + (height - totalTextHeight) / 2
 
         // title
-        mc.fontRendererObj.drawStringWithShadow(this.title, textX, textY.toFloat(), Color.WHITE.rgb)
+        FontUtil.drawStringWithShadow(this.title, textX, textY, Color.WHITE.rgb)
 
         // description
         lines.forEachIndexed { index, line ->
-            mc.fontRendererObj.drawStringWithShadow(line, textX + 3, textY.toFloat() + (lineSpacing * (index + 1)), Color.WHITE.rgb)
+            FontUtil.drawStringWithShadow(line, textX + 3, textY + (lineSpacing * (index + 1)), Color.WHITE.rgb)
         }
 
         GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f)

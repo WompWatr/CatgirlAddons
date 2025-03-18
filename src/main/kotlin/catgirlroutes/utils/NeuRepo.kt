@@ -1,6 +1,8 @@
 package catgirlroutes.utils
 
 import catgirlroutes.CatgirlRoutes.Companion.scope
+import catgirlroutes.ui.clickgui.util.FontUtil.capitalizeOnlyFirst
+import catgirlroutes.utils.Utils.intToRoman
 import catgirlroutes.utils.Utils.noControlCodes
 import com.google.gson.Gson
 import com.google.gson.JsonObject
@@ -40,7 +42,7 @@ object NeuRepo {
                             // also change name of enchantments
                             val colour = if (enchantment.startsWith("ULTIMATE")) "§9§d§l" else "§9"
                             enchantment = if (enchantment.contains("WISE")) enchantment else enchantment.replace("ULTIMATE_", "")
-                            item.name = "$colour${enchantment.replace("_", " ").capitalizeWords()} $tier"
+                            item.name = "$colour${enchantment.replace("_", " ").capitalizeWords()} ${intToRoman(tier.toInt())}"
                         }
                     }
                     item
@@ -55,7 +57,7 @@ object NeuRepo {
         }
     }
 
-    private fun String.capitalizeWords(): String = split(" ").joinToString(" ") { it.toLowerCase().capitalize() }
+    private fun String.capitalizeWords(): String = split(" ").joinToString(" ") { it.capitalizeOnlyFirst() }
 
     private fun updateItemsWithAuctionData() = runBlocking {
         val auctionDataJson = getDataFromServer("https://moulberry.codes/lowestbin.json")

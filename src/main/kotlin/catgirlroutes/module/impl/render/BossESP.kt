@@ -17,7 +17,7 @@ import net.minecraftforge.client.event.RenderWorldLastEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import java.awt.Color
 
-object BossESP : Module( // todo: outline
+object BossESP : Module(
     name = "Boss ESP",
     category = Category.RENDER,
     description = "ESP for the Withers."

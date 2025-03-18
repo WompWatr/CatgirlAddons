@@ -10,12 +10,10 @@ import catgirlroutes.module.impl.player.*
 import catgirlroutes.module.impl.render.*
 import catgirlroutes.module.settings.NoShowInList
 import catgirlroutes.module.settings.Setting
-import catgirlroutes.module.settings.Visibility
 import catgirlroutes.module.settings.impl.BooleanSetting
 import catgirlroutes.module.settings.impl.KeyBindSetting
 import catgirlroutes.ui.hud.EditHudGUI
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
-import kotlin.reflect.full.hasAnnotation
 
 
 /**
@@ -77,12 +75,13 @@ object ModuleManager {
         InvincibilityTimer,
         AutoDialogue,
         AutoClicker,
-        DojoHelper,
+//        DojoHelper,
         AutoKick,
         AutoWardrobe,
         WitherCloak,
         Inventory,
         PhoenixAuth,
+        RendHelper,
 
         // Player
         AutoSprint,
@@ -113,9 +112,9 @@ object ModuleManager {
      */
     init {
         for (module in modules) {
-            if (!module::class.hasAnnotation<NoShowInList>()) {
-                module.addSettings(BooleanSetting("Show in List", true, null, Visibility.ADVANCED_ONLY))
-            }
+//            if (!module::class.hasAnnotation<NoShowInList>()) {
+//                module.addSettings(BooleanSetting("Show in List", true, null, Visibility.ADVANCED_ONLY))
+//            }
             module.keybinding.let {
                 module.register(KeyBindSetting("Key Bind", it, description = "Toggles the module"))
             }

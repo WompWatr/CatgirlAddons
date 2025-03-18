@@ -35,14 +35,14 @@ object DungeonESP: Module(
     private val lineWidth = NumberSetting("Line width", 4.0, 0.0, 8.0, 1.0)
 
     private val colorDropdown = DropdownSetting("Colors")
-    private val colorStar = ColorSetting("Star Color", Color(255, 0, 0), true, "ESP color for star mobs.").withDependency { colorDropdown.value }
-    private val colorSA = ColorSetting("Shadow Color", Color(255, 0, 0), true, "ESP color for shadow assassins.").withDependency { colorDropdown.value }
-    private val colorBat = ColorSetting("Bat Color", Color(255, 0, 0), true, "ESP color for bats.").withDependency { colorDropdown.value }
+    private val colorStar = ColorSetting("Star Color", Color(255, 0, 0), true, "ESP color for star mobs.").withDependency(colorDropdown)
+    private val colorSA = ColorSetting("Shadow Color", Color(255, 0, 0), true, "ESP color for shadow assassins.").withDependency(colorDropdown)
+    private val colorBat = ColorSetting("Bat Color", Color(255, 0, 0), true, "ESP color for bats.").withDependency(colorDropdown)
 
-    private val fillDropdown = DropdownSetting("Fill").withDependency { espFill.value }
-    private val colorStarFill = ColorSetting("Star Fill", Color(255, 0, 0), true, "ESP color for star mobs.").withDependency { espFill.value && fillDropdown.value }
-    private val colorSAFill = ColorSetting("Shadow Fill", Color(255, 0, 0), true, "ESP color for shadow assassins.").withDependency { espFill.value && fillDropdown.value }
-    private val colorBatFill = ColorSetting("Bat Fill", Color(255, 0, 0), true, "ESP color for bats.").withDependency { espFill.value && fillDropdown.value }
+    private val fillDropdown = DropdownSetting("Fill").withDependency { espFill.enabled }
+    private val colorStarFill = ColorSetting("Star Fill", Color(255, 0, 0), true, "ESP color for star mobs.").withDependency(fillDropdown) { espFill.enabled }
+    private val colorSAFill = ColorSetting("Shadow Fill", Color(255, 0, 0), true, "ESP color for shadow assassins.").withDependency(fillDropdown) { espFill.enabled }
+    private val colorBatFill = ColorSetting("Bat Fill", Color(255, 0, 0), true, "ESP color for bats.").withDependency(fillDropdown) { espFill.enabled }
 
     private var currentEntities = mutableSetOf<ESPEntity>()
 

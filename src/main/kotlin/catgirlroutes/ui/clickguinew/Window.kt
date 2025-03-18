@@ -5,8 +5,8 @@ import catgirlroutes.module.ModuleManager
 import catgirlroutes.module.settings.SettingsCategory
 import catgirlroutes.ui.animations.impl.LinearAnimation
 import catgirlroutes.ui.clickguinew.elements.ModuleButton
-import catgirlroutes.utils.ChatUtils.debugMessage
 import net.minecraft.client.renderer.GlStateManager
+import org.lwjgl.input.Keyboard
 import kotlin.reflect.full.hasAnnotation
 
 class Window(
@@ -18,13 +18,12 @@ class Window(
     var x = this.clickGui.x + this.clickGui.categoryWidth + 10.0
     var y = this.clickGui.y + 25.0 + 5.0
 
-    val width = this.clickGui.guiWidth - this.clickGui.categoryWidth - 20.0
+    val width = this.clickGui.guiWidth - this.clickGui.categoryWidth - 15.0
     val height = this.clickGui.guiHeight - 25.0
-
-    var length = 0.0
 
     private val selected: Boolean
         get() = this.clickGui.selectedWindow == this
+    val inModule: Boolean get() = this.moduleButtons.any { it.extended }
 
     private var scrollTarget = 0.0
     private var scrollOffset = 0.0
@@ -41,39 +40,16 @@ class Window(
     fun drawScreen(mouseX: Int, mouseY: Int, partialTicks: Float) {
         if (!this.selected) return
         GlStateManager.pushMatrix()
-        GlStateManager.translate(x.toFloat(), y.toFloat(), 0f)
+        GlStateManager.translate(x, y, 0.0)
 
         this.scrollOffset = this.scrollAnimation.get(this.scrollOffset, this.scrollTarget)
 
-        var startYLeft = this.scrollOffset
-        var startYRight = this.scrollOffset
-
-        this.moduleButtons.filtered().reversed()
-            .chunked(2).forEach { row ->
-                row.forEachIndexed { i, button ->
-                    if (i == 0) {
-                        button.x = 0.0
-                        button.y = startYLeft
-                        startYLeft += button.drawScreen(mouseX, mouseY, partialTicks)
-                    } else {
-                        button.x = row[0].width + 5.0
-                        button.y = startYRight
-                        startYRight += button.drawScreen(mouseX, mouseY, partialTicks)
-                    }
-                    if (button.extendAnimation.isAnimating() || button.extraHeightAnimation.isAnimating()) {
-                        if (button.extended) {
-                            val buttonBot = button.y + button.elementsHeight + button.height
-                            val newScrollTarget = this.scrollOffset - if (button.elementsHeight + button.height < this.height) buttonBot - this.height + 15.0 else button.y
-
-                            if (newScrollTarget < this.scrollTarget) {
-                                this.scrollTarget = newScrollTarget
-                                if (!this.scrollAnimation.isAnimating()) this.scrollAnimation.start()
-                            }
-                        }
-                    }
-                }
+        var drawY = this.scrollOffset
+        this.moduleButtons.filtered().reversed().forEach {
+            it.x = 0.0
+            it.y = drawY
+            drawY += it.drawScreen(mouseX, mouseY, partialTicks)
         }
-        this.length = startYLeft.coerceAtLeast(startYRight)
 
         GlStateManager.popMatrix()
     }
@@ -97,6 +73,10 @@ class Window(
                 if (it.keyTyped(typedChar, keyCode)) return true
             }
         }
+        if (!this.inModule) when (keyCode) {
+            Keyboard.KEY_UP -> this.scroll(1)
+            Keyboard.KEY_DOWN -> this.scroll(-1)
+        }
         return false
     }
 
@@ -104,17 +84,16 @@ class Window(
         if (this.selected) this.moduleButtons.filtered().forEach { it.mouseClickMove(mouseX, mouseY, clickedMouseButton, timeSinceLastClick) }
     }
 
-    fun scroll(amount: Int, mouseX: Int, mouseY: Int): Boolean {
-        if (isHovered(mouseX, mouseY) && clickGui.searchBar.text.isEmpty()) {
-            debugMessage(amount)
-            this.scrollTarget = (this.scrollTarget + amount * SCROLL_DISTANCE).coerceIn(-this.length + this.scrollOffset + 72.0, 0.0)
-            this.scrollAnimation.start(true)
-            return true
-        }
-        return false
+    fun scroll(amount: Int, mouseX: Int = (this.x + 10.0).toInt(), mouseY: Int = (this.y + 10.0).toInt()): Boolean {
+        if (inModule || !isHovered(mouseX, mouseY)) return false
+        val h = moduleButtons.filtered().size * 25.0 + 5.0
+        if (h < this.height) return false
+        scrollTarget = (scrollTarget + amount * SCROLL_DISTANCE).coerceIn(-h + this.height, 0.0)
+        scrollAnimation.start(true)
+        return true
     }
 
-    private fun isHovered(mouseX: Int, mouseY: Int): Boolean {
+    fun isHovered(mouseX: Int, mouseY: Int): Boolean {
         if (!this.selected) return false
         return mouseX >= this.x && mouseX <= this.x + this.width && mouseY >= this.y && mouseY <= this.y + this.height
     }
@@ -122,6 +101,6 @@ class Window(
     private fun List<ModuleButton>.filtered() = filter { it.module.name.contains(clickGui.searchBar.text, true) }.reversed()
 
     companion object {
-        private const val SCROLL_DISTANCE = 25
+        const val SCROLL_DISTANCE = 25
     }
 }

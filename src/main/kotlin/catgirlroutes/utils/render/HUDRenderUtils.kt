@@ -3,13 +3,11 @@ package catgirlroutes.utils.render
 import catgirlroutes.CatgirlRoutes.Companion.mc
 import net.minecraft.client.gui.Gui
 import net.minecraft.client.gui.ScaledResolution
-import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.client.renderer.RenderHelper
-import net.minecraft.client.renderer.Tessellator
-import net.minecraft.client.renderer.WorldRenderer
+import net.minecraft.client.renderer.*
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.inventory.Slot
 import net.minecraft.item.ItemStack
+import net.minecraft.util.ResourceLocation
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL14
 import java.awt.Color
@@ -174,6 +172,14 @@ object HUDRenderUtils {
         GL11.glDisable(GL11.GL_SCISSOR_TEST)
     }
 
+    private fun setColor(color: Int) {
+        val a = (color shr 24 and 0xFF) / 255.0f
+        val r = (color shr 16 and 0xFF) / 255.0f
+        val g = (color shr 8 and 0xFF) / 255.0f
+        val b = (color and 0xFF) / 255.0f
+        GL11.glColor4f(r, g, b, a)
+    }
+
     fun drawBorderedRect(x: Double, y: Double, width: Double, height: Double, thickness: Double, colour1: Color, colour2: Color) {
         renderRect(x, y, width, height, colour1)
         renderRectBorder(x, y, width, height, thickness, colour2)
@@ -181,104 +187,82 @@ object HUDRenderUtils {
 
     fun drawRoundedBorderedRect(x: Double, y: Double, width: Double, height: Double, radius: Double, thickness: Double, colour1: Color, colour2: Color) {
         drawRoundedRect(x, y, width, height, radius, colour1)
-        drawOutlinedRectBorder(x, y, width, height, radius, thickness, colour2)
+        drawRoundedOutline(x, y, width, height, radius, thickness, colour2)
     }
-    // todo: change those numbers in GL11.glEnable(3553)..
+
     fun drawRoundedRect(x: Double, y: Double, width: Double, height: Double, radius: Double, colour: Color) {
         if (colour.alpha == 0) return
+        val x1 = x + width
+        val y1 = y + height
         GlStateManager.pushMatrix()
-        GlStateManager.enableBlend();
-        GlStateManager.disableTexture2D();
-        GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
-
-        val color = colour.rgb
-        var x1 = x
-        var y1 = y
-        val x2 = x1 + width
-        val y2 = y1 + height
-        val f = ((color shr 24) and 0xFF) / 255.0f
-        val f2 = ((color shr 16) and 0xFF) / 255.0f
-        val f3 = ((color shr 8) and 0xFF) / 255.0f
-        val f4 = (color and 0xFF) / 255.0f
-
-        GL11.glPushAttrib(0);
-        GL11.glScaled(0.5, 0.5, 0.5);
-
-        x1 *= 2.0
-        y1 *= 2.0
-        val x2Scaled = x2 * 2.0
-        val y2Scaled = y2 * 2.0
-
-        GL11.glDisable(3553);
-        GL11.glColor4f(f2, f3, f4, f);
-        GL11.glEnable(2848);
-        GL11.glBegin(9);
-
-        drawArc(x1 + radius, y1 + radius, -radius, -radius, 0, 90, 3)
-        drawArc(x1 + radius, y2Scaled - radius, -radius, -radius, 90, 180, 3)
-        drawArc(x2Scaled - radius, y2Scaled - radius, radius, radius, 0, 90, 3)
-        drawArc(x2Scaled - radius, y1 + radius, radius, radius, 90, 180, 3)
-
-        GL11.glEnd();
-        GL11.glEnable(3553);
-        GL11.glDisable(2848);
-        GL11.glEnable(3553);
-        GL11.glScaled(2.0, 2.0, 2.0);
-        GL11.glPopAttrib();
-        GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-        GlStateManager.enableTexture2D();
-        GlStateManager.disableBlend();
-        GlStateManager.popMatrix()
-    }
-
-    fun drawOutlinedRectBorder(x: Double, y: Double, width: Double, height: Double, radius: Double, thickness: Double, colour: Color) {
-        GlStateManager.pushMatrix()
+        GlStateManager.scale(0.5, 0.5, 0.5)
+        val scaledX = x * 2.0
+        val scaledY = y * 2.0
+        val scaledX1 = x1 * 2.0
+        val scaledY1 = y1 * 2.0
         GlStateManager.enableBlend()
         GlStateManager.disableTexture2D()
-        GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0)
-        var x2 = x + width
-        var y2 = y + height
-        val f: Float = (colour.rgb shr 24 and 0xFF) / 255.0f
-        val f2: Float = (colour.rgb shr 16 and 0xFF) / 255.0f
-        val f3: Float = (colour.rgb shr 8 and 0xFF) / 255.0f
-        val f4: Float = (colour.rgb and 0xFF) / 255.0f
-        GL11.glPushAttrib(0)
-        GL11.glScaled(0.5, 0.5, 0.5)
-        val x1 = x * 2.0f
-        val y1 = y * 2.0f
-        x2 *= 2.0
-        y2 *= 2.0
-        GL11.glLineWidth(thickness.toFloat())
-        GL11.glDisable(3553)
-        GL11.glColor4f(f2, f3, f4, f)
-        GL11.glEnable(2848)
-        GL11.glBegin(2)
+        GL11.glEnable(GL11.GL_LINE_SMOOTH)
+        setColor(colour.rgb)
+        GL11.glEnable(GL11.GL_POLYGON_SMOOTH)
+        GL11.glBegin(GL11.GL_POLYGON)
 
-        drawArc(x1 + radius, y1 + radius, -radius, -radius, 0, 90, 3)
-        drawArc(x1 + radius, y2 - radius, -radius, -radius, 90, 180, 3)
-        drawArc(x2 - radius, y2 - radius, radius, radius, 0, 90, 3)
-        drawArc(x2 - radius, y1 + radius, radius, radius, 90, 180, 3)
+        drawCorner(scaledX + radius, scaledY + radius, radius, 0, 90, 3, invertX = true, invertY = true)
+        drawCorner(scaledX + radius, scaledY1 - radius, radius, 90, 180, 3, invertX = true, invertY = true)
+        drawCorner(scaledX1 - radius, scaledY1 - radius, radius, 0, 90, 3)
+        drawCorner(scaledX1 - radius, scaledY + radius, radius, 90, 180, 3)
 
-        GL11.glEnd();
-        GL11.glEnable(3553);
-        GL11.glDisable(2848);
-        GL11.glEnable(3553);
-        GL11.glScaled(2.0, 2.0, 2.0);
-        GL11.glPopAttrib();
-        GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-        GlStateManager.enableTexture2D();
-        GlStateManager.disableBlend();
+        GL11.glEnd()
+        GlStateManager.disableBlend()
+        GL11.glDisable(GL11.GL_POLYGON_SMOOTH)
+        GL11.glDisable(GL11.GL_LINE_SMOOTH)
+        GlStateManager.enableTexture2D()
+        GlStateManager.scale(2.0, 2.0, 2.0)
+        GlStateManager.resetColor()
         GlStateManager.popMatrix()
     }
 
-    private fun drawArc(centerX: Double, centerY: Double, radiusX: Double, radiusY: Double, startAngle: Int, endAngle: Int, step: Int) {
+    fun drawRoundedOutline(x: Double, y: Double, width: Double, height: Double, radius: Double, thickness: Double, colour: Color) {
+        val x1 = x + width
+        val y1 = y + height
+        GlStateManager.pushMatrix()
+        GlStateManager.scale(0.5, 0.5, 0.5)
+        val scaledX = x * 2.0
+        val scaledY = y * 2.0
+        val scaledX1 = x1 * 2.0
+        val scaledY1 = y1 * 2.0
+        GlStateManager.enableBlend()
+        GlStateManager.disableTexture2D()
+        setColor(colour.rgb)
+        GL11.glEnable(GL11.GL_LINE_SMOOTH)
+        GL11.glLineWidth(thickness.toFloat())
+        GL11.glBegin(GL11.GL_LINE_LOOP)
+
+        drawCorner(scaledX + radius, scaledY + radius, radius, 0, 90, 3, invertX = true, invertY = true)
+        drawCorner(scaledX + radius, scaledY1 - radius, radius, 90, 180, 3, invertX = true, invertY = true)
+        drawCorner(scaledX1 - radius, scaledY1 - radius, radius, 0, 90, 3)
+        drawCorner(scaledX1 - radius, scaledY + radius, radius, 90, 180, 3)
+
+        GL11.glEnd()
+        GlStateManager.disableBlend()
+        GL11.glDisable(GL11.GL_LINE_SMOOTH)
+        GlStateManager.enableTexture2D()
+        GlStateManager.scale(2.0, 2.0, 2.0)
+        GlStateManager.resetColor()
+        GlStateManager.popMatrix()
+    }
+
+    private fun drawCorner(cx: Double, cy: Double, radius: Double, startAngle: Int, endAngle: Int, step: Int, invertX: Boolean = false, invertY: Boolean = false) {
         for (i in startAngle..endAngle step step) {
-            val angle = Math.toRadians(i.toDouble())
-            GL11.glVertex2d(centerX + sin(angle) * radiusX, centerY + cos(angle) * radiusY)
+            val angle = i * Math.PI / 180.0
+            val xOffset = sin(angle) * radius * if (invertX) -1.0 else 1.0
+            val yOffset = cos(angle) * radius * if (invertY) -1.0 else 1.0
+            GL11.glVertex2d(cx + xOffset, cy + yOffset)
         }
     }
 
     fun drawTexturedRect(
+        resource: ResourceLocation,
         x: Double,
         y: Double,
         width: Double,
@@ -289,6 +273,7 @@ object HUDRenderUtils {
         vMax: Double = 1.0,
         filter: Int = GL11.GL_NEAREST
     ) {
+       mc.textureManager.bindTexture(resource)
        drawTexturedRect(x.toFloat(), y.toFloat(), width.toFloat(), height.toFloat(), uMin.toFloat(), uMax.toFloat(), vMin.toFloat(), vMax.toFloat(), filter)
     }
 
@@ -517,5 +502,36 @@ object HUDRenderUtils {
         GlStateManager.enableBlend()
         GlStateManager.enableLighting()
         GlStateManager.popMatrix()
+    }
+
+    fun drawPlayerOnScreen(x: Double, y: Double, partialTicks: Float, scale: Double = 1.0) {
+
+        val ent = mc.thePlayer
+
+//        val interpolatedYaw = ent.prevRotationYaw + (ent.rotationYaw - ent.prevRotationYaw) * partialTicks
+//        val interpolatedPitch = ent.prevRotationPitch + (ent.rotationPitch - ent.prevRotationPitch) * partialTicks
+//
+//        ent.rotationYaw = interpolatedYaw.coerceIn(-45.0f, 45.0f)
+//        ent.rotationPitch = interpolatedPitch.coerceIn(-30.0f, 30.0f)
+
+        GlStateManager.enableColorMaterial()
+        GlStateManager.pushMatrix()
+        GlStateManager.translate(x, y, 50.0)
+        GlStateManager.scale(-scale, scale, scale)
+        GlStateManager.rotate(180.0f, 0.0f, 0.0f, 1.0f)
+        RenderHelper.enableStandardItemLighting()
+
+        val renderManager = mc.renderManager
+        renderManager.isRenderShadow = false
+
+        renderManager.renderEntityWithPosYaw(ent, 0.0, 0.0, 0.0, ent.rotationYaw, partialTicks)
+        renderManager.isRenderShadow = true
+
+        GlStateManager.popMatrix()
+        RenderHelper.disableStandardItemLighting()
+        GlStateManager.disableRescaleNormal()
+        GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit)
+        GlStateManager.disableTexture2D()
+        GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit)
     }
 }

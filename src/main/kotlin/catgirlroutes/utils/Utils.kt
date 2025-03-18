@@ -19,6 +19,8 @@ import net.minecraft.nbt.*
 import net.minecraft.util.*
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.fml.common.eventhandler.Event
+import java.util.*
+import kotlin.collections.HashMap
 import kotlin.math.round
 import kotlin.math.sqrt
 
@@ -107,6 +109,13 @@ object Utils {
         }
         return result + (romanMap[s.last()] ?: 0)
     }
+
+    private val intToRomanMap = mapOf(1000 to "M", 900 to "CM", 500 to "D", 400 to "CD", 100 to "C", 90 to "XC", 50 to "L", 40 to "XL", 10 to "X", 9 to "IX", 5 to "V", 4 to "IV", 1 to "I")
+    fun intToRoman(num: Int): String = intToRomanMap.entries
+        .sortedByDescending { it.key }
+        .fold("" to num) { (result, n), (value, symbol) ->
+            result + symbol.repeat(n / value) to n % value
+        }.first
 
     /**
      * Adds the given coordinates to the Vec3.
@@ -345,23 +354,5 @@ fun ItemStack.toJson(): JsonObject {
     json.add("lore", jsonLore)
 
     return json
-}
-
-fun wrapText(text: String, maxWidth: Double): List<String> { // shit to split long description
-    val lines = mutableListOf<String>()
-    var currentLine = ""
-
-    text.split(" ").forEach { word ->
-        val testLine = if (currentLine.isEmpty()) word else "$currentLine $word"
-        if (mc.fontRendererObj.getStringWidth(testLine) <= maxWidth) {
-            currentLine = testLine
-        } else {
-            lines.add(currentLine)
-            currentLine = word
-        }
-    }
-
-    if (currentLine.isNotEmpty()) lines.add(currentLine)
-    return lines
 }
 

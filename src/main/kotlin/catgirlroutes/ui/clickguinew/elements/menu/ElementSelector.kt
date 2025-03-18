@@ -36,7 +36,7 @@ class ElementSelector(parent: ModuleButton, setting: StringSelectorSetting) : //
             if (this.isHovered(mouseX, mouseY, yOff = yOff.toInt())) {
                 drawRoundedBorderedRect(0.0, yOff, width, 13.0, 3.0, 1.0, Color(ColorUtil.outlineColor).darker(), Color(ColorUtil.outlineColor))
             }
-            FontUtil.drawTotalCenteredString(option.capitalizeOnlyFirst(), width / 2.0, yOff + 13.0 / 2.0)
+            FontUtil.drawTotalCenteredString(option, width / 2.0, yOff + 13.0 / 2.0)
         }
         StencilUtils.dispose()
 

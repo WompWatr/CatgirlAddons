@@ -11,7 +11,7 @@ import catgirlroutes.ui.clickguinew.elements.ModuleButton
 import catgirlroutes.ui.misc.elements.impl.MiscElementText
 import catgirlroutes.utils.ChatUtils.debugMessage
 import catgirlroutes.utils.Utils.equalsOneOf
-import catgirlroutes.utils.render.HUDRenderUtils.drawOutlinedRectBorder
+import catgirlroutes.utils.render.HUDRenderUtils.drawRoundedOutline
 import catgirlroutes.utils.render.HUDRenderUtils.drawRoundedBorderedRect
 import catgirlroutes.utils.render.HUDRenderUtils.drawRoundedHueBox
 import catgirlroutes.utils.render.HUDRenderUtils.drawRoundedRect
@@ -31,7 +31,7 @@ class ElementColor(parent: ModuleButton, setting: ColorSetting) : // todo: shado
 
     private val hexTextField = MiscElementText(
         FontUtil.getStringWidth("Hex") + 5.0,
-        DEFAULT_HEIGHT * 7 + 5.0,
+        DEFAULT_HEIGHT * 8 + 5.0,
         width / 2.0 - (FontUtil.getStringWidth("Hex") + 5.0) + 27.0,
         DEFAULT_HEIGHT,
         colorValue.hex,
@@ -45,7 +45,7 @@ class ElementColor(parent: ModuleButton, setting: ColorSetting) : // todo: shado
     private val extendAnimation = EaseOutQuadAnimation(300)
 
     override fun renderElement(mouseX: Int, mouseY: Int, partialTicks: Float): Double {
-        height = this.extendAnimation.get(if (this.setting.collapsible) DEFAULT_HEIGHT else DEFAULT_HEIGHT * 8 + 5.0, DEFAULT_HEIGHT * 8 + 5.0, !extended)
+        height = this.extendAnimation.get(if (this.setting.collapsible) DEFAULT_HEIGHT else DEFAULT_HEIGHT * 9 + 5.0, DEFAULT_HEIGHT * 9 + 5.0, !extended)
         FontUtil.drawString(displayName, 0.0, 0.0)
         drawRoundedBorderedRect(
             FontUtil.getStringWidth(displayName) + 5.0,
@@ -69,12 +69,11 @@ class ElementColor(parent: ModuleButton, setting: ColorSetting) : // todo: shado
         /**
          * SB BOX
          */
-//        drawRoundedSBBox(0.0, DEFAULT_HEIGHT, width / 2.0, DEFAULT_HEIGHT * 6, 3.0, this.colorValue.hsbMax(this.setting).rgb)
-        drawSBBox(1.0, DEFAULT_HEIGHT + 1.0, width / 2.0 - 2.0, DEFAULT_HEIGHT * 6 - 2.0, this.colorValue.hsbMax(this.setting).rgb)
-        drawOutlinedRectBorder(0.0, DEFAULT_HEIGHT, width / 2.0, DEFAULT_HEIGHT * 6, 3.0, 1.0, this.colorValue.hsbMax(this.setting))
+        drawSBBox(1.0, DEFAULT_HEIGHT + 1.0, width / 2.0 - 2.0, DEFAULT_HEIGHT * 7 - 2.0, this.colorValue.hsbMax(this.setting).rgb)
+        drawRoundedOutline(0.0, DEFAULT_HEIGHT, width / 2.0, DEFAULT_HEIGHT * 7, 3.0, 1.0, this.colorValue.hsbMax(this.setting))
         drawRoundedBorderedRect(
             this.setting.saturation * width / 2.0 - 3.0,
-            (1 - this.setting.brightness) * DEFAULT_HEIGHT * 6 + DEFAULT_HEIGHT - 3.0,
+            (1 - this.setting.brightness) * DEFAULT_HEIGHT * 7 + DEFAULT_HEIGHT - 3.0,
             6.0, 6.0, 6.0, 2.0,
             this.colorValue.withAlpha(255), Color.WHITE
         )
@@ -82,11 +81,11 @@ class ElementColor(parent: ModuleButton, setting: ColorSetting) : // todo: shado
         /**
          * HUE
          */
-        drawRoundedHueBox(width / 2.0 + 3.5 + 1.0, DEFAULT_HEIGHT + 1.0, 8.0, DEFAULT_HEIGHT * 6 - 2.0, 3.0, true)
-        drawOutlinedRectBorder(width / 2.0 + 3.5, DEFAULT_HEIGHT, 10.0, DEFAULT_HEIGHT * 6, 3.0, 1.0, this.colorValue.hsbMax(this.setting))
+        drawRoundedHueBox(width / 2.0 + 3.5 + 1.0, DEFAULT_HEIGHT + 1.0, 8.0, DEFAULT_HEIGHT * 7 - 2.0, 3.0, true)
+        drawRoundedOutline(width / 2.0 + 3.5, DEFAULT_HEIGHT, 10.0, DEFAULT_HEIGHT * 7, 3.0, 1.0, this.colorValue.hsbMax(this.setting))
         drawRoundedBorderedRect(
             width / 2.0 + 3.5 + 2.0,
-            this.setting.hue * DEFAULT_HEIGHT * 6 + DEFAULT_HEIGHT - 3.0,
+            this.setting.hue * DEFAULT_HEIGHT * 7 + DEFAULT_HEIGHT - 3.0,
             6.0, 6.0, 6.0, 2.0,
             this.colorValue.hsbMax(this.setting).withAlpha(255).darker(),
             Color.WHITE
@@ -101,13 +100,13 @@ class ElementColor(parent: ModuleButton, setting: ColorSetting) : // todo: shado
 //                this.colorValue.withAlpha(255).rgb, Color.black.rgb, this.colorValue.withAlpha(255).rgb, Color.black.rgb
 //            )
             drawSBBox(
-                width / 2.0 + DEFAULT_HEIGHT + 3.5 + 1.0, DEFAULT_HEIGHT + 1.0, 8.0, DEFAULT_HEIGHT * 6 - 2.0,
+                width / 2.0 + DEFAULT_HEIGHT + 3.5 + 1.0, DEFAULT_HEIGHT + 1.0, 8.0, DEFAULT_HEIGHT * 7 - 2.0,
                 this.colorValue.withAlpha(255).rgb, this.colorValue.withAlpha(255).rgb, Color.black.rgb, Color.black.rgb
             )
-            drawOutlinedRectBorder(width / 2.0 + DEFAULT_HEIGHT + 3.5, DEFAULT_HEIGHT, 10.0, DEFAULT_HEIGHT * 6, 3.0, 1.0, this.colorValue.hsbMax(this.setting))
+            drawRoundedOutline(width / 2.0 + DEFAULT_HEIGHT + 3.5, DEFAULT_HEIGHT, 10.0, DEFAULT_HEIGHT * 7, 3.0, 1.0, this.colorValue.hsbMax(this.setting))
             drawRoundedBorderedRect(
                 width / 2.0 + DEFAULT_HEIGHT + 3.5 + 2.0,
-                (1.0 - this.setting.alpha) * (DEFAULT_HEIGHT * 6) + DEFAULT_HEIGHT - 3.0,
+                (1.0 - this.setting.alpha) * (DEFAULT_HEIGHT * 7) + DEFAULT_HEIGHT - 3.0,
                 6.0, 6.0, 6.0, 2.0,
                 Color.WHITE.withAlpha(this.setting.alpha), Color.WHITE
             )
@@ -119,10 +118,10 @@ class ElementColor(parent: ModuleButton, setting: ColorSetting) : // todo: shado
         when (this.dragging) {
             0 -> {
                 this.setting.saturation = MathHelper.clamp_float(((mouseX - xAbsolute) / (width / 2.0)).toFloat(), 0.0f, 1.0f)
-                this.setting.brightness = MathHelper.clamp_float((-(mouseY - yAbsolute - DEFAULT_HEIGHT * 7) / (DEFAULT_HEIGHT * 6)).toFloat(), 0.0f, 1.0f)
+                this.setting.brightness = MathHelper.clamp_float((-(mouseY - yAbsolute - DEFAULT_HEIGHT * 8) / (DEFAULT_HEIGHT * 7)).toFloat(), 0.0f, 1.0f)
             }
-            1 -> this.setting.hue = MathHelper.clamp_float((((mouseY - yAbsolute - DEFAULT_HEIGHT - 2.0) / (DEFAULT_HEIGHT * 6.0 - 2.0)).toFloat()), 0.0f, 1.0f)
-            2 -> this.setting.alpha = MathHelper.clamp_float(1f - ((mouseY - yAbsolute - DEFAULT_HEIGHT - 2.0) / (DEFAULT_HEIGHT * 6.0 - 2.0)).toFloat(), 0.0f, 1.0f)
+            1 -> this.setting.hue = MathHelper.clamp_float((((mouseY - yAbsolute - DEFAULT_HEIGHT - 2.0) / (DEFAULT_HEIGHT * 7.0 - 2.0)).toFloat()), 0.0f, 1.0f)
+            2 -> this.setting.alpha = MathHelper.clamp_float(1f - ((mouseY - yAbsolute - DEFAULT_HEIGHT - 2.0) / (DEFAULT_HEIGHT * 7.0 - 2.0)).toFloat(), 0.0f, 1.0f)
         }
 
         /**
@@ -139,18 +138,18 @@ class ElementColor(parent: ModuleButton, setting: ColorSetting) : // todo: shado
 
         }
 
-        FontUtil.drawString("Hex", 0.0, DEFAULT_HEIGHT * 7 + 7.0)
+        FontUtil.drawString("Hex", 0.0, DEFAULT_HEIGHT * 8 + 7.0)
         this.hexTextField.render(mouseX - xAbsolute.toInt(), mouseY - yAbsolute.toInt())
 
         /**
          * FAVOURITE
          */
         val favX = if (this.setting.allowAlpha) width / 2.0 + DEFAULT_HEIGHT * 2 + 3.5 else width / 2.0 + DEFAULT_HEIGHT + 3.5
-        drawOutlinedRectBorder(favX, DEFAULT_HEIGHT, 15.0, 15.0, 3.0, 1.0, this.colorValue)
+        drawRoundedOutline(favX, DEFAULT_HEIGHT, 15.0, 15.0, 3.0, 1.0, this.colorValue)
         drawRoundedBorderedRect(favX + 1.0, DEFAULT_HEIGHT + 1.0, 13.0, 13.0, 3.0, 1.0, this.colorValue, this.colorValue)
 
         for (i in 0..2) { // temp
-            drawOutlinedRectBorder(favX, DEFAULT_HEIGHT * 2 + 5.0 + (i * (15.0 + 3.0)), 15.0, 15.0, 3.0, 1.0, Color.WHITE.darker())
+            drawRoundedOutline(favX, DEFAULT_HEIGHT * 2 + 5.0 + (i * (15.0 + 3.0)), 15.0, 15.0, 3.0, 1.0, Color.WHITE.darker())
         }
 
         if (this.setting.collapsible) StencilUtils.dispose()

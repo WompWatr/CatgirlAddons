@@ -13,10 +13,10 @@ abstract class Element<S: Setting<*>>(
 ) {
     private val clickGui: ClickGUI = parent.window.clickGui
 
-    var x = 7.0
+    var x = 0.0
     var y = 0.0
 
-    val width = this.parent.width - 15.0
+    val width = this.parent.width
     var height: Double
 
     var displayName: String = this.setting.name
@@ -24,13 +24,13 @@ abstract class Element<S: Setting<*>>(
     var listening = false
 
     val xAbsolute: Double
-        get() = this.x + this.parent.x + this.parent.window.x
+        get() = this.x + this.parent.window.x
 
     val yAbsolute: Double
-        get() = this.y + this.parent.y + this.parent.window.y
+        get() = this.y + this.parent.window.y
 
     private var hoverStartTime: Long? = null
-    private var description = ClickGUI.Description(null, 0.0, 0.0)
+    private var description = ClickGUI.Description("", 0.0, 0.0)
 
     init {
         this.height = when (this.type) {
@@ -53,14 +53,10 @@ abstract class Element<S: Setting<*>>(
             }
             ElementType.COLOR -> {
                 height =
-                    if ((setting as ColorSetting).collapsible) {
-                        if(extended) {
-                            DEFAULT_HEIGHT * 8 + 5.0
-                        } else {
-                            DEFAULT_HEIGHT
-                        }
+                    if ((setting as ColorSetting).collapsible && !extended) {
+                        DEFAULT_HEIGHT
                     } else {
-                        DEFAULT_HEIGHT * 8 + 5.0
+                        DEFAULT_HEIGHT * 9 + 5.0
                     }
             }
             else -> {}
@@ -82,7 +78,6 @@ abstract class Element<S: Setting<*>>(
         } else {
             clickGui.description[this.setting.name] = ClickGUI.Description("", 0.0, 0.0)
             hoverStartTime = null
-
         }
 
         GlStateManager.popMatrix()
@@ -106,7 +101,7 @@ abstract class Element<S: Setting<*>>(
     }
 
     private fun isHoveredTemp(mouseX: Int, mouseY: Int): Boolean {
-        return mouseX >= this.xAbsolute && mouseX <= this.xAbsolute + this.width && mouseY >= this.yAbsolute && mouseY <= this.yAbsolute + 13
+        return mouseX >= this.xAbsolute && mouseX <= this.xAbsolute + this.width && mouseY >= this.yAbsolute && mouseY <= this.yAbsolute + DEFAULT_HEIGHT
     }
 
     companion object {

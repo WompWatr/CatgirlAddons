@@ -26,7 +26,7 @@ import catgirlroutes.utils.SkyblockPlayer.maxSecrets
 import catgirlroutes.utils.dungeon.DungeonUtils.inBoss
 import catgirlroutes.utils.dungeon.DungeonUtils.inDungeons
 import catgirlroutes.utils.render.HUDRenderUtils.drawItemStackWithText
-import catgirlroutes.utils.render.HUDRenderUtils.drawOutlinedRectBorder
+import catgirlroutes.utils.render.HUDRenderUtils.drawRoundedOutline
 import catgirlroutes.utils.render.HUDRenderUtils.drawRoundedRect
 import net.minecraft.init.Blocks
 import net.minecraft.item.ItemStack
@@ -48,28 +48,28 @@ object PlayerDisplay: Module(
     private val hideHunger = BooleanSetting("Hide hunger")
 
     private val healthDropdown = DropdownSetting("Health dropdown")
-    private val health = BooleanSetting("Health").withDependency { healthDropdown.enabled }
-    private val healthColour = ColorSetting("Health colour", Color(255,85,85), false).withDependency { healthDropdown.enabled && health.enabled }
-    private val healthBar = BooleanSetting("Health bar").withDependency { healthDropdown.enabled }
-    private val healthBarColour = ColorSetting("Health bar colour", Color(255,85,85)).withDependency { healthDropdown.enabled && healthBar.enabled }
-    private val effectiveHealth = BooleanSetting("Effective health").withDependency { healthDropdown.enabled }
+    private val health = BooleanSetting("Health").withDependency(healthDropdown)
+    private val healthColour = ColorSetting("Health colour", Color(255,85,85), false).withDependency(healthDropdown) { health.enabled }
+    private val healthBar = BooleanSetting("Health bar").withDependency(healthDropdown)
+    private val healthBarColour = ColorSetting("Health bar colour", Color(255,85,85)).withDependency(healthDropdown) { healthBar.enabled }
+    private val effectiveHealth = BooleanSetting("Effective health").withDependency(healthDropdown)
 
     private val manaDropdown = DropdownSetting("Mana dropdown")
-    private val mana = BooleanSetting("Mana").withDependency { manaDropdown.enabled }
-    private val manaColour = ColorSetting("Mana colour", Color(85, 85, 255), false).withDependency { manaDropdown.enabled && mana.enabled }
-    private val manaBar = BooleanSetting("Mana bar").withDependency { manaDropdown.enabled }
-    private val manaBarColour = ColorSetting("Mana bar colour", Color(85, 85, 255)).withDependency { manaDropdown.enabled && manaBar.enabled }
-    private val manaUsage = BooleanSetting("Mana usage").withDependency { manaDropdown.enabled }
-    private val overflowMana = BooleanSetting("Overflow mana").withDependency { manaDropdown.enabled }
+    private val mana = BooleanSetting("Mana").withDependency(manaDropdown)
+    private val manaColour = ColorSetting("Mana colour", Color(85, 85, 255), false).withDependency(manaDropdown) { mana.enabled }
+    private val manaBar = BooleanSetting("Mana bar").withDependency(manaDropdown)
+    private val manaBarColour = ColorSetting("Mana bar colour", Color(85, 85, 255)).withDependency(manaDropdown) { manaBar.enabled }
+    private val manaUsage = BooleanSetting("Mana usage").withDependency(manaDropdown)
+    private val overflowMana = BooleanSetting("Overflow mana").withDependency(manaDropdown)
 
     private val otherDropdown = DropdownSetting("Other")
-    private val defence = BooleanSetting("Defence").withDependency { otherDropdown.enabled }
-    private val defenceColour = ColorSetting("Defence colour", Color( 85, 255, 85), false).withDependency { otherDropdown.enabled && defence.enabled }
-    private val speed = BooleanSetting("Speed").withDependency { otherDropdown.enabled }
-    private val stacks = BooleanSetting("Crimson stacks").withDependency { otherDropdown.enabled }
-    private val salvation = BooleanSetting("Salvation").withDependency { otherDropdown.enabled }
-    private val secrets = BooleanSetting("Secret display").withDependency { otherDropdown.enabled }
-    private val sbaStyle = BooleanSetting("SBA secrets style").withDependency { otherDropdown.enabled && secrets.enabled }
+    private val defence = BooleanSetting("Defence").withDependency(otherDropdown)
+    private val defenceColour = ColorSetting("Defence colour", Color( 85, 255, 85), false).withDependency(otherDropdown) { defence.enabled }
+    private val speed = BooleanSetting("Speed").withDependency(otherDropdown)
+    private val stacks = BooleanSetting("Crimson stacks").withDependency(otherDropdown)
+    private val salvation = BooleanSetting("Salvation").withDependency(otherDropdown)
+    private val secrets = BooleanSetting("Secret display").withDependency(otherDropdown)
+    private val sbaStyle = BooleanSetting("SBA secrets style").withDependency(otherDropdown) { secrets.enabled }
 
     private val barWidth = 75.0
     private val barHeight = 7.0
@@ -171,7 +171,7 @@ object PlayerDisplay: Module(
         preview = {
             drawRoundedRect(0.0, 0.0, barWidth, barHeight, 5.0, Color(ColorUtil.bgColor))
             drawRoundedRect(0.0, 0.0, 50.0, barHeight, 5.0, healthBarColour.value)
-            drawOutlinedRectBorder(0.0, 0.0, barWidth, barHeight, 5.0, 1.0, Color(208, 208, 208))
+            drawRoundedOutline(0.0, 0.0, barWidth, barHeight, 5.0, 1.0, Color(208, 208, 208))
         }
     ) {
         override fun renderHud() {
@@ -179,7 +179,7 @@ object PlayerDisplay: Module(
             val fillWidth = SkyblockPlayer.health.toFloat() / SkyblockPlayer.maxHealth.toFloat() * barWidth
             drawRoundedRect(0.0, 0.0, barWidth, barHeight, 5.0, Color(ColorUtil.bgColor))
             drawRoundedRect(0.0, 0.0, fillWidth, barHeight, 5.0, healthBarColour.value)
-            drawOutlinedRectBorder(0.0, 0.0, barWidth, barHeight, 5.0, 1.0, Color(208, 208, 208))
+            drawRoundedOutline(0.0, 0.0, barWidth, barHeight, 5.0, 1.0, Color(208, 208, 208))
         }
     }
 
@@ -216,7 +216,7 @@ object PlayerDisplay: Module(
         preview = {
             drawRoundedRect(0.0, 0.0, barWidth, barHeight, 5.0, Color(ColorUtil.bgColor))
             drawRoundedRect(0.0, 0.0, 50.0, barHeight, 5.0, manaBarColour.value)
-            drawOutlinedRectBorder(0.0, 0.0, barWidth, barHeight, 5.0, 1.0, Color(208, 208, 208))
+            drawRoundedOutline(0.0, 0.0, barWidth, barHeight, 5.0, 1.0, Color(208, 208, 208))
         }
     ) {
         override fun renderHud() {
@@ -224,7 +224,7 @@ object PlayerDisplay: Module(
             val fillWidth = SkyblockPlayer.mana.toFloat() / SkyblockPlayer.maxMana.toFloat() * barWidth
             drawRoundedRect(0.0, 0.0, barWidth, barHeight, 5.0, Color(ColorUtil.bgColor))
             drawRoundedRect(0.0, 0.0, fillWidth, barHeight, 5.0, manaBarColour.value)
-            drawOutlinedRectBorder(0.0, 0.0, barWidth, barHeight, 5.0, 1.0, Color(208, 208, 208))
+            drawRoundedOutline(0.0, 0.0, barWidth, barHeight, 5.0, 1.0, Color(208, 208, 208))
         }
     }
 

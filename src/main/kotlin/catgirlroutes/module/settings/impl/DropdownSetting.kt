@@ -11,6 +11,6 @@ class DropdownSetting(
     override val default: Boolean = false,
 ) : Setting<Boolean>(name, null, Visibility.CLICK_GUI_ONLY) {
     override var value: Boolean = default
-
+    val dependentModules: MutableList<Setting<*>> = mutableListOf()
     var enabled: Boolean by this::value
 }

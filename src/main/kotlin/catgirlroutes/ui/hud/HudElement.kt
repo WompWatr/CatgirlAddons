@@ -31,6 +31,8 @@ abstract class HudElement{
     var width: Int
     var height: Int
 
+    var partialTicks: Float = 1.0f
+
     private var preview: () -> Unit
 
     private val zoomIncrement = 0.05
@@ -132,6 +134,7 @@ abstract class HudElement{
     @SubscribeEvent
     fun onOverlay(event: RenderGameOverlayEvent.Post) {
         if (event.type != RenderGameOverlayEvent.ElementType.HOTBAR) return
+        this.partialTicks = event.partialTicks
         GlStateManager.pushMatrix()
         GlStateManager.translate(x.toFloat(), y.toFloat(), 0f)
         GlStateManager.scale(scale.value, scale.value, 1.0)

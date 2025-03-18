@@ -48,19 +48,22 @@ class ElementKeyBind(parent: ModuleButton, setting: KeyBindSetting) :
     }
 
     override fun keyTyped(typedChar: Char, keyCode: Int): Boolean {
-        if (listening) {
-            if (keyCode == Keyboard.KEY_ESCAPE) {
+        if (!listening) return super.keyTyped(typedChar, keyCode)
+
+        when (keyCode) {
+            Keyboard.KEY_ESCAPE -> {
                 this.setting.value.key = Keyboard.KEY_NONE
                 if (this.colourAnimation.start()) listening = false
-            } else if (keyCode == Keyboard.KEY_NUMPADENTER || keyCode == Keyboard.KEY_RETURN) {
+            }
+            Keyboard.KEY_NUMPADENTER, Keyboard.KEY_RETURN -> {
                 if (this.colourAnimation.start()) listening = false
-            } else {
+            }
+            else -> {
                 this.setting.value.key = keyCode
                 if (this.colourAnimation.start()) listening = false
             }
-            return true
         }
-        return super.keyTyped(typedChar, keyCode)
+        return true
     }
 
     private fun isHovered(mouseX: Int, mouseY: Int): Boolean {

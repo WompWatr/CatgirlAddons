@@ -4,6 +4,7 @@ import catgirlroutes.CatgirlRoutes.Companion.mc
 import catgirlroutes.module.Category
 import catgirlroutes.module.Module
 import catgirlroutes.module.settings.impl.ColorSetting
+import catgirlroutes.utils.Utils.noControlCodes
 import catgirlroutes.utils.dungeon.DungeonUtils
 import catgirlroutes.utils.dungeon.M7Phases
 import catgirlroutes.utils.render.WorldRenderUtils.drawBoxByEntity
@@ -30,7 +31,7 @@ object TerminalEsp : Module (
         if (DungeonUtils.getF7Phase() != M7Phases.P3) return
         mc.theWorld.loadedEntityList
             .filterIsInstance<EntityArmorStand>()
-            .filter { DungeonUtils.termInactiveTitles.contains(it.name) }
+            .filter { DungeonUtils.termInactiveTitles.contains(it.name.noControlCodes) }
             .forEach {
                 drawBoxByEntity(it, color.value, it.width.toDouble(), it.height.toDouble(), 0f)
             }

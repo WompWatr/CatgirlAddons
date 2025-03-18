@@ -23,55 +23,55 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import net.minecraftforge.fml.common.gameevent.TickEvent
 import java.awt.Color
 
-object Puzzles : Module ( // todo: auto icefill
+object Puzzles : Module (
     "Puzzles",
     Category.DUNGEON,
     "Puzzle solvers"
 ) {
-    private val iceFillSettings: DropdownSetting = DropdownSetting("Ice fill", false)
-    var iceFill: BooleanSetting = BooleanSetting("Ice fill solver", false).withDependency { iceFillSettings.value }
-    var iceFillAuto: BooleanSetting = BooleanSetting("Auto ice fill", false).withDependency { iceFillSettings.value }
-    var iceFillDelay: NumberSetting = NumberSetting("Auto ice fill delay", 2.0, 1.0, 10.0, 1.0).withDependency { iceFillSettings.value }
+    private val fillDropdown: DropdownSetting = DropdownSetting("Ice fill", false)
+    var fillSolver: BooleanSetting = BooleanSetting("Ice fill solver", false).withDependency(fillDropdown)
+    var fillAuto: BooleanSetting = BooleanSetting("Auto ice fill", false).withDependency(fillDropdown) { fillSolver.enabled }
+    var fillDelay: NumberSetting = NumberSetting("Auto ice fill delay", 2.0, 1.0, 10.0, 1.0).withDependency(fillDropdown) { fillSolver.enabled && fillAuto.enabled }
 
-    private val tttSettings: DropdownSetting = DropdownSetting("Tic tac toe", false)
-    var ttt: BooleanSetting = BooleanSetting("Tic tac toe solver", false).withDependency { tttSettings.value }
-    val renderNext = BooleanSetting("Show Next Move", true, description = "Shows which move is next.").withDependency { tttSettings.value }
-    var tttAuto: BooleanSetting = BooleanSetting("Auto TTT", false).withDependency { tttSettings.value }
-    var tttReach: NumberSetting = NumberSetting("Auto TTT reach", 4.5, 1.0, 6.0, 0.1).withDependency { tttSettings.value }
+    private val tttDropdown: DropdownSetting = DropdownSetting("Tic tac toe", false)
+    private var tttSolver: BooleanSetting = BooleanSetting("Tic tac toe solver", false).withDependency(tttDropdown)
+    private val renderNext = BooleanSetting("Show Next Move", true, description = "Shows which move is next.").withDependency(tttDropdown) { tttSolver.enabled }
+    var tttAuto: BooleanSetting = BooleanSetting("Auto TTT", false).withDependency(tttDropdown) { tttSolver.enabled }
+    var tttReach: NumberSetting = NumberSetting("Auto TTT reach", 4.5, 1.0, 6.0, 0.1).withDependency(tttDropdown) { tttSolver.enabled && tttAuto.enabled }
 
-    private val waterSettings: DropdownSetting = DropdownSetting("Water board", false)
-    val waterSolver: BooleanSetting = BooleanSetting("Water Board Solver", false, description = "Shows you the solution to the water puzzle.").withDependency { waterSettings.value }
-    val showTracer: BooleanSetting = BooleanSetting("Show Tracer", true, description = "Shows a tracer to the next lever.").withDependency { waterSettings.value }
+    private val wbDropdown: DropdownSetting = DropdownSetting("Water board", false)
+    private val wbSolver: BooleanSetting = BooleanSetting("Water Board Solver", false, description = "Shows you the solution to the water puzzle.").withDependency(wbDropdown)
+    private val wbTracer: BooleanSetting = BooleanSetting("Show Tracer", true, description = "Shows a tracer to the next lever.").withDependency(wbDropdown) { wbSolver.enabled }
 
-    private val weirdosSettings: DropdownSetting = DropdownSetting("Three weirdos", false)
-    val weirdoSolver: BooleanSetting = BooleanSetting("Weirdo solver", false).withDependency { weirdosSettings.value }
-    val autoWeirdos = BooleanSetting("Auto weirdos", false).withDependency { weirdosSettings.value }
+    private val weirdosDropdown: DropdownSetting = DropdownSetting("Three weirdos", false)
+    val weirdosSolver: BooleanSetting = BooleanSetting("Weirdo solver", false).withDependency(weirdosDropdown)
+    val weirdosAuto = BooleanSetting("Auto weirdos", false).withDependency(weirdosDropdown) { weirdosSolver.enabled }
 
     init {
         addSettings(
-            iceFillSettings,
-            iceFill,
-            iceFillAuto,
-            iceFillDelay,
+            fillDropdown,
+            fillSolver,
+            fillAuto,
+            fillDelay,
 
-            tttSettings,
-            ttt,
+            tttDropdown,
+            tttSolver,
             renderNext,
             tttAuto,
             tttReach,
 
-            waterSettings,
-            waterSolver,
-            showTracer,
+            wbDropdown,
+            wbSolver,
+            wbTracer,
 
-            weirdosSettings,
-            weirdoSolver,
-            autoWeirdos
+            weirdosDropdown,
+            weirdosSolver,
+            weirdosAuto
         )
 
         Executor(500) {
             if (!inDungeons || inBoss) return@Executor
-            if (waterSolver.value) WaterSolver.scan()
+            if (wbSolver.value) WaterSolver.scan()
         }.register()
     }
 
@@ -91,7 +91,7 @@ object Puzzles : Module ( // todo: auto icefill
     @SubscribeEvent
     fun onPacket(event: PacketSentEvent) {
         if (event.packet is C08PacketPlayerBlockPlacement) {
-            if (waterSolver.value) waterInteract(event.packet)
+            if (wbSolver.value) waterInteract(event.packet)
         }
     }
 
@@ -102,9 +102,9 @@ object Puzzles : Module ( // todo: auto icefill
 
     @SubscribeEvent
     fun onWorldLast(event: RenderWorldLastEvent) {
-        if (iceFill.enabled) IceFillSolver.onRenderWorld(Color.GREEN)
-        if (ttt.enabled) TicTacToeSolver.onRenderWorld()
-        if (waterSolver.enabled)   WaterSolver.onRenderWorld(showTracer.value)
+        if (fillSolver.enabled) IceFillSolver.onRenderWorld(Color.GREEN)
+        if (tttSolver.enabled) TicTacToeSolver.onRenderWorld()
+        if (wbSolver.enabled)   WaterSolver.onRenderWorld(wbTracer.value)
     }
 
     @SubscribeEvent

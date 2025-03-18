@@ -3,9 +3,9 @@ package catgirlroutes.module.impl.dungeons.puzzlesolvers
 import catgirlroutes.CatgirlRoutes.Companion.mc
 import catgirlroutes.events.impl.PacketReceiveEvent
 import catgirlroutes.events.impl.RoomEnterEvent
-import catgirlroutes.module.impl.dungeons.puzzlesolvers.Puzzles.iceFill
-import catgirlroutes.module.impl.dungeons.puzzlesolvers.Puzzles.iceFillAuto
-import catgirlroutes.module.impl.dungeons.puzzlesolvers.Puzzles.iceFillDelay
+import catgirlroutes.module.impl.dungeons.puzzlesolvers.Puzzles.fillSolver
+import catgirlroutes.module.impl.dungeons.puzzlesolvers.Puzzles.fillAuto
+import catgirlroutes.module.impl.dungeons.puzzlesolvers.Puzzles.fillDelay
 import catgirlroutes.utils.ChatUtils.modMessage
 import catgirlroutes.utils.ClientListener.scheduleTask
 import catgirlroutes.utils.MovementUtils.setKey
@@ -81,8 +81,8 @@ object IceFillSolver {
             val fy = mc.thePlayer.posY + 0.1
             val fz = floor(mc.thePlayer.posZ) + 0.5
 
-            if ((fx == p1.xCoord && fy == p1.yCoord && fz == p1.zCoord) || (mc.thePlayer.posX == p1.xCoord && fy == p1.yCoord && mc.thePlayer.posZ == p1.zCoord) && targetBlocks.isEmpty() && iceFillAuto.value && !tpCooldown) {
-                scheduleTask(iceFillDelay.value.toInt() - 1) {
+            if ((fx == p1.xCoord && fy == p1.yCoord && fz == p1.zCoord) || (mc.thePlayer.posX == p1.xCoord && fy == p1.yCoord && mc.thePlayer.posZ == p1.zCoord) && targetBlocks.isEmpty() && fillAuto.value && !tpCooldown) {
+                scheduleTask(fillDelay.value.toInt() - 1) {
                     if(mc.thePlayer.isCollidedVertically && !teleported) {
                         stopVelo()
                         val x = p2.xCoord - mc.thePlayer.posX
@@ -98,7 +98,7 @@ object IceFillSolver {
 
     @SubscribeEvent
     fun onPacket(event: PacketReceiveEvent) {
-        if (event.packet !is S08PacketPlayerPosLook || !iceFill.value) return
+        if (event.packet !is S08PacketPlayerPosLook || !fillSolver.value) return
         tpCooldown = true
 
     }
