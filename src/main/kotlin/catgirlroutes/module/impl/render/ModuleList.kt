@@ -31,7 +31,7 @@ object ModuleList : Module(
 
     val activeModuleList: List<String>
         get() = modules.mapNotNull {
-            if (it.enabled && it.settings.any { setting -> setting is BooleanSetting && setting.value && setting.name == "Show in List" }) it.name else null
+            if (it.enabled && it.name != this.name) it.name else null
         }
 
     @RegisterHudElement

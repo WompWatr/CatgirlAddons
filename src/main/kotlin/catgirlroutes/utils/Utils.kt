@@ -356,21 +356,3 @@ fun ItemStack.toJson(): JsonObject {
     return json
 }
 
-fun wrapText(text: String, maxWidth: Double): List<String> { // shit to split long description
-    val lines = mutableListOf<String>()
-    var currentLine = ""
-
-    text.split(" ").forEach { word ->
-        val testLine = if (currentLine.isEmpty()) word else "$currentLine $word"
-        if (mc.fontRendererObj.getStringWidth(testLine) <= maxWidth) {
-            currentLine = testLine
-        } else {
-            lines.add(currentLine)
-            currentLine = word
-        }
-    }
-
-    if (currentLine.isNotEmpty()) lines.add(currentLine)
-    return lines
-}
-

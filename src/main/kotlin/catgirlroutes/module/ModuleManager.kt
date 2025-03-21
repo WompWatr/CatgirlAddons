@@ -81,6 +81,7 @@ object ModuleManager {
         WitherCloak,
         Inventory,
         PhoenixAuth,
+        RendHelper,
 
         // Player
         AutoSprint,

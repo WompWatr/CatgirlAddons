@@ -92,6 +92,11 @@ class ModuleConfig(path: File) {
                             is SelectorSetting ->   if (configSetting is StringSetting) setting.selected = configSetting.text
                             is StringSetting ->     if (configSetting is StringSetting) setting.text = configSetting.text
                             is KeyBindSetting ->    if (configSetting is NumberSetting) { setting.value = Keybinding(configSetting.value.toInt()).apply { onPress = setting.value.onPress } }
+                            is ListSetting<*, *> -> if (configSetting is ListSetting<*, *>) {
+                                setting.value.clear()
+                                @Suppress("UNCHECKED_CAST")
+                                (setting.value as MutableCollection<Any?>).addAll(configSetting.value as Collection<Any?>)
+                            }
                             is DropdownSetting ->   continue
                         }
                     }

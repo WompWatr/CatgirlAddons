@@ -8,13 +8,13 @@ import catgirlroutes.ui.clickgui.util.ColorUtil.withAlpha
 import catgirlroutes.ui.clickgui.util.FontUtil
 import catgirlroutes.ui.clickgui.util.FontUtil.capitalizeOnlyFirst
 import catgirlroutes.ui.clickgui.util.FontUtil.fontHeight
+import catgirlroutes.ui.clickgui.util.FontUtil.wrapText
 import catgirlroutes.ui.misc.elements.impl.MiscElementButton
 import catgirlroutes.ui.misc.elements.impl.MiscElementText
 import catgirlroutes.utils.ChatUtils.debugMessage
 import catgirlroutes.utils.render.HUDRenderUtils.drawRoundedBorderedRect
 import catgirlroutes.utils.render.HUDRenderUtils.resetScissor
 import catgirlroutes.utils.render.HUDRenderUtils.scissor
-import catgirlroutes.utils.wrapText
 import net.minecraft.client.gui.GuiScreen
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.client.renderer.GlStateManager
@@ -98,6 +98,7 @@ class ClickGUI : GuiScreen() { // todo: module description, fix element descript
         this.searchBar.apply {
             outlineColour = Color(ColorUtil.outlineColor)
             outlineFocusColour = ColorUtil.clickGUIColor
+            bgColour = Color(ColorUtil.bgColor)
             render(scaledMouseX, scaledMouseY)
         }
         categoryButtons.clear()

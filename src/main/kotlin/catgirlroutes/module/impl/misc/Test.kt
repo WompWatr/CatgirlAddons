@@ -1,7 +1,5 @@
 package catgirlroutes.module.impl.misc
 
-import catgirlroutes.CatgirlRoutes.Companion.clickGUINew
-import catgirlroutes.CatgirlRoutes.Companion.display
 import catgirlroutes.CatgirlRoutes.Companion.mc
 import catgirlroutes.events.impl.RoomEnterEvent
 import catgirlroutes.module.Category
@@ -45,9 +43,9 @@ object Test : Module(
         debugMessage(TestHud.width)
     }
 
-    private val newClickGui = ActionSetting("New click gui") {
-        display = clickGUINew
-    }
+    private val listTest = ListSetting("Test list", mutableListOf<String>())
+    private val stupid4 = ActionSetting("Stupid4") { this.listTest.value.add("Test") }
+    private val stupid5 = ActionSetting("Stupid5") { debugMessage(this.listTest.value) }
 
     init {
         addSettings(
@@ -67,7 +65,11 @@ object Test : Module(
             this.colourTest2,
 
             this.slider,
-            this.getHudWidth
+            this.getHudWidth,
+
+            this.listTest,
+            this.stupid4,
+            this.stupid5
         )
     }
 

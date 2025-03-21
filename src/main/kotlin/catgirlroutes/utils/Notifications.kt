@@ -1,6 +1,9 @@
 package catgirlroutes.utils
 
 import catgirlroutes.CatgirlRoutes.Companion.mc
+import catgirlroutes.ui.clickgui.util.FontUtil
+import catgirlroutes.ui.clickgui.util.FontUtil.fontHeight
+import catgirlroutes.ui.clickgui.util.FontUtil.wrapText
 import catgirlroutes.ui.notification.Notification
 import catgirlroutes.ui.notification.NotificationType
 import net.minecraft.client.gui.ScaledResolution
@@ -28,8 +31,8 @@ object Notifications {
         var y: Double = sr.scaledHeight - 3.0
 
         for (notification in notifications) {
-            val width: Double = maxOf(150.0, mc.fontRendererObj.getStringWidth(notification.title) + 10.0)
-            val lineSpacing = mc.fontRendererObj.FONT_HEIGHT + 2
+            val width: Double = maxOf(150.0, FontUtil.getStringWidthDouble(notification.title) + 10.0)
+            val lineSpacing = fontHeight + 2
             val iconOffset = if (notification.icon != null) 15 else 0
             val lines = wrapText(notification.description, width - lineSpacing - iconOffset * 1.8) // 1.8 because don't even ask it's 2 am
             val height: Double = 20.0 + lines.size * lineSpacing

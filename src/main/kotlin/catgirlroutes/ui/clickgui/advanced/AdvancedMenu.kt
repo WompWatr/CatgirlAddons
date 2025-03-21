@@ -128,7 +128,7 @@ class AdvancedMenu(val module: Module) {
         var dy = 20 - scrollOffs
 
         /** Render the module description text */
-        FontUtil.drawSplitString(module.description, indent, dy, width - 2 * indent , textcolor)
+        FontUtil.drawWrappedText(module.description, indent, dy, width - 2 * indent , textcolor)
         dy += FontUtil.getSplitHeight(module.description, width-2*indent) + 10
         //Render the settings.
         for (element in elements) {

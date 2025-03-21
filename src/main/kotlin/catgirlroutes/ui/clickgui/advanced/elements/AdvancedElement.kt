@@ -76,7 +76,7 @@ abstract class AdvancedElement<S: Setting<*>>(
     fun renderDescription() : Int{
         var descriptionHeight = 0
         setting.description?.let {
-            FontUtil.drawSplitString(
+            FontUtil.drawWrappedText(
                 it, settingWidth + 10,
                 2, width - settingWidth - 10, ColorUtil.textcolor
             )

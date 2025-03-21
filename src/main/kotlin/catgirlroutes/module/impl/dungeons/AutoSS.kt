@@ -48,10 +48,11 @@ object AutoSS : Module(
     private val autoStart: NumberSetting = NumberSetting("Autostart delay", 125.0, 50.0, 200.0, 1.0, unit = "ms")
     private val smoothRotate: BooleanSetting = BooleanSetting("Rotate", false)
     private val time: NumberSetting = NumberSetting("Rotation Speed", 200.0, 0.0, 500.0, 10.0).withDependency { this.smoothRotate.enabled }
+    private val dontCheck: BooleanSetting = BooleanSetting("Faster SS?", false)
 
     init {
         ssLoop()
-        this.addSettings(delay, forceDevice, resetSS, autoStart, smoothRotate, time)
+        this.addSettings(delay, forceDevice, resetSS, autoStart, smoothRotate, time, dontCheck)
     }
 
     var lastClickAdded = System.currentTimeMillis()
@@ -155,9 +156,7 @@ object AutoSS : Module(
                 return@Executor
             }
 
-            if (detect == Blocks.air) {
-                progress = 0
-            } else if (detect == Blocks.stone_button && doingSS) {
+            if ((detect == Blocks.stone_button || (dontCheck.value && doneFirst)) && doingSS) {
                 if (!doneFirst && clicks.size == 3) {
                     clicks.removeAt(0)
                     allButtons.removeAt(0)

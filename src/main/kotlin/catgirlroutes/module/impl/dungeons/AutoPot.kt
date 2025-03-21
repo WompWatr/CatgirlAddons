@@ -5,10 +5,13 @@ import catgirlroutes.events.impl.PacketReceiveEvent
 import catgirlroutes.events.impl.ReceiveChatPacketEvent
 import catgirlroutes.module.Category
 import catgirlroutes.module.Module
+import catgirlroutes.module.settings.Setting.Companion.withDependency
 import catgirlroutes.module.settings.impl.BooleanSetting
 import catgirlroutes.utils.ChatUtils.command
 import catgirlroutes.utils.ChatUtils.modMessage
 import catgirlroutes.utils.ClientListener.scheduleTask
+import catgirlroutes.utils.dungeon.DungeonUtils
+import catgirlroutes.utils.dungeon.Floor
 import net.minecraft.network.play.client.C0DPacketCloseWindow
 import net.minecraft.network.play.client.C0EPacketClickWindow
 import net.minecraft.network.play.server.S2DPacketOpenWindow
@@ -20,14 +23,15 @@ object AutoPot: Module(
     description = "Automatically gets a potion from your potion bag."
 ){
     private val potOnStart = BooleanSetting("On start", false, "Gets a pot on dungeon start.")
+    private val m7Only = BooleanSetting("M7 only")
 
     init {
-        potOnStart
+        addSettings(this.potOnStart, this.m7Only)
     }
 
     @SubscribeEvent
     fun onChat (event: ReceiveChatPacketEvent) {
-        if (!potOnStart.value) return
+        if (!potOnStart.enabled || !(this.m7Only.enabled && DungeonUtils.floor == Floor.M7)) return
 
         val message = event.packet.chatComponent.toString()
         if (Regex("\\[NPC] Mort: Here, I found this map when I first entered the dungeon\\.").find(message) != null) {
@@ -50,9 +54,9 @@ object AutoPot: Module(
     @SubscribeEvent
     fun onS2D(event: PacketReceiveEvent) {
         if (event.packet !is S2DPacketOpenWindow || !awaitPot) return
-        if ((event.packet as S2DPacketOpenWindow).windowTitle?.unformattedText != "Potion Bag") return
+        if (event.packet.windowTitle?.unformattedText != "Potion Bag") return
         awaitPot = false
-        val cwid = (event.packet as S2DPacketOpenWindow).windowId
+        val cwid = event.packet.windowId
         event.isCanceled = true
         scheduleTask(0) {
             if (cwid == -1) return@scheduleTask

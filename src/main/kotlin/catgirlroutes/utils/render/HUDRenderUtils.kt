@@ -3,10 +3,7 @@ package catgirlroutes.utils.render
 import catgirlroutes.CatgirlRoutes.Companion.mc
 import net.minecraft.client.gui.Gui
 import net.minecraft.client.gui.ScaledResolution
-import net.minecraft.client.renderer.GlStateManager
-import net.minecraft.client.renderer.RenderHelper
-import net.minecraft.client.renderer.Tessellator
-import net.minecraft.client.renderer.WorldRenderer
+import net.minecraft.client.renderer.*
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.inventory.Slot
 import net.minecraft.item.ItemStack
@@ -505,5 +502,36 @@ object HUDRenderUtils {
         GlStateManager.enableBlend()
         GlStateManager.enableLighting()
         GlStateManager.popMatrix()
+    }
+
+    fun drawPlayerOnScreen(x: Double, y: Double, partialTicks: Float, scale: Double = 1.0) {
+
+        val ent = mc.thePlayer
+
+//        val interpolatedYaw = ent.prevRotationYaw + (ent.rotationYaw - ent.prevRotationYaw) * partialTicks
+//        val interpolatedPitch = ent.prevRotationPitch + (ent.rotationPitch - ent.prevRotationPitch) * partialTicks
+//
+//        ent.rotationYaw = interpolatedYaw.coerceIn(-45.0f, 45.0f)
+//        ent.rotationPitch = interpolatedPitch.coerceIn(-30.0f, 30.0f)
+
+        GlStateManager.enableColorMaterial()
+        GlStateManager.pushMatrix()
+        GlStateManager.translate(x, y, 50.0)
+        GlStateManager.scale(-scale, scale, scale)
+        GlStateManager.rotate(180.0f, 0.0f, 0.0f, 1.0f)
+        RenderHelper.enableStandardItemLighting()
+
+        val renderManager = mc.renderManager
+        renderManager.isRenderShadow = false
+
+        renderManager.renderEntityWithPosYaw(ent, 0.0, 0.0, 0.0, ent.rotationYaw, partialTicks)
+        renderManager.isRenderShadow = true
+
+        GlStateManager.popMatrix()
+        RenderHelper.disableStandardItemLighting()
+        GlStateManager.disableRescaleNormal()
+        GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit)
+        GlStateManager.disableTexture2D()
+        GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit)
     }
 }

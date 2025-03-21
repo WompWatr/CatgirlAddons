@@ -11,12 +11,12 @@ import catgirlroutes.ui.clickgui.elements.ModuleButton.Companion.whipIcon
 import catgirlroutes.ui.clickgui.util.ColorUtil
 import catgirlroutes.ui.clickgui.util.FontUtil
 import catgirlroutes.ui.clickgui.util.FontUtil.fontHeight
+import catgirlroutes.ui.clickgui.util.FontUtil.wrapText
 import catgirlroutes.ui.clickguinew.Window
 import catgirlroutes.ui.clickguinew.Window.Companion.SCROLL_DISTANCE
 import catgirlroutes.ui.clickguinew.elements.menu.*
 import catgirlroutes.utils.render.HUDRenderUtils.drawRoundedBorderedRect
 import catgirlroutes.utils.render.HUDRenderUtils.drawTexturedRect
-import catgirlroutes.utils.wrapText
 import net.minecraft.client.gui.GuiScreen.isShiftKeyDown
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.util.ResourceLocation

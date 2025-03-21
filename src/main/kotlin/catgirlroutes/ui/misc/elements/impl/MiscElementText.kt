@@ -5,6 +5,7 @@ import catgirlroutes.ui.clickgui.util.ColorUtil
 import catgirlroutes.ui.clickgui.util.ColorUtil.withAlpha
 import catgirlroutes.ui.clickgui.util.FontUtil
 import catgirlroutes.ui.clickgui.util.FontUtil.getStringWidth
+import catgirlroutes.ui.clickgui.util.FontUtil.getStringWidthDouble
 import catgirlroutes.ui.misc.elements.MiscElement
 import catgirlroutes.utils.Utils.noControlCodes
 import catgirlroutes.utils.render.HUDRenderUtils.drawRoundedBorderedRect
@@ -86,10 +87,10 @@ class MiscElementText( // todo: CLEAN UP/RECODE (mc code is ass); redo/undo
 
     private val renderText get() = this.prependText + text
     private val sizeText get() = if (this.size != 9999) "${renderText.length}/${this.size}" else ""
-    private val fieldWidth get() = this.width - 10 - getStringWidth(sizeText)
+    private val fieldWidth get() = this.width - 10 - getStringWidthDouble(sizeText)
 
     private fun updateScrollOffset() {
-        val cursorX = getStringWidth(renderText.substring(0, cursorPosition + prependText.length))
+        val cursorX = getStringWidthDouble(renderText.substring(0, cursorPosition + prependText.length))
         if (cursorX - scrollOffset > fieldWidth) {
             scrollOffset = cursorX - fieldWidth
         } else if (cursorX < scrollOffset) {
@@ -100,7 +101,7 @@ class MiscElementText( // todo: CLEAN UP/RECODE (mc code is ass); redo/undo
 
 
     private fun getCursorPos(mouseX: Int): Int {
-        val xComp = mouseX - x - getStringWidth(prependText) - 5
+        val xComp = mouseX - x - getStringWidthDouble(prependText) - 5
         val adjustedX = (xComp + scrollOffset).coerceAtLeast(0.0)
 
         val trimmed = mc.fontRendererObj.trimStringToWidth(this.text, adjustedX.toInt())
@@ -181,7 +182,7 @@ class MiscElementText( // todo: CLEAN UP/RECODE (mc code is ass); redo/undo
 
     override fun render(mouseX: Int, mouseY: Int) {
         val yPos = y + (this.height - 8) / 2
-        val maxScrollOffset = (getStringWidth(this.renderText) - this.fieldWidth).coerceAtLeast(0.0)
+        val maxScrollOffset = (getStringWidthDouble(this.renderText) - this.fieldWidth).coerceAtLeast(0.0)
         this.scrollOffset = this.scrollOffset.coerceIn(0.0, maxScrollOffset)
 
         GlStateManager.pushMatrix()
@@ -200,12 +201,12 @@ class MiscElementText( // todo: CLEAN UP/RECODE (mc code is ass); redo/undo
 
         FontUtil.drawString(visibleText, x + 5, yPos)
 
-        if (this.text.isEmpty()) FontUtil.drawString(this.placeholder, x + 5 + getStringWidth(this.prependText), yPos, Color.LIGHT_GRAY.rgb)
+        if (this.text.isEmpty()) FontUtil.drawString(this.placeholder, x + 5 + getStringWidthDouble(this.prependText), yPos, Color.LIGHT_GRAY.rgb)
 
         if (this.focus && System.currentTimeMillis() % 1000 > 500) {
             val cursorText = this.renderText.substring(0, this.cursorPosition + this.prependText.length)
 
-            val cursorWidth = (getStringWidth(cursorText) - this.scrollOffset).coerceIn(0.0, this.fieldWidth)
+            val cursorWidth = (getStringWidthDouble(cursorText) - this.scrollOffset).coerceIn(0.0, this.fieldWidth)
             val cursorX = x + 5 + cursorWidth
 
             drawRoundedRect(cursorX, yPos - 1, 1.0, 10.0, 1.0, Color.WHITE)
@@ -218,7 +219,7 @@ class MiscElementText( // todo: CLEAN UP/RECODE (mc code is ass); redo/undo
 
             var texX = 0.0
             this.renderText.noControlCodes.forEachIndexed { i, c ->
-                val len = getStringWidth(c.toString())
+                val len = getStringWidthDouble(c.toString())
                 if (i in left!! until right!!) {
                     val currentTexX = texX - this.scrollOffset
 

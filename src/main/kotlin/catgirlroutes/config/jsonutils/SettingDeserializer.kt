@@ -2,10 +2,7 @@ package catgirlroutes.config.jsonutils
 
 
 import catgirlroutes.module.settings.Setting
-import catgirlroutes.module.settings.impl.BooleanSetting
-import catgirlroutes.module.settings.impl.DummySetting
-import catgirlroutes.module.settings.impl.NumberSetting
-import catgirlroutes.module.settings.impl.StringSetting
+import catgirlroutes.module.settings.impl.*
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
@@ -25,12 +22,25 @@ class SettingDeserializer: JsonDeserializer<Setting<*>> {
             val name = json.asJsonObject.entrySet().first().key
             val value = json.asJsonObject.entrySet().first().value
 
-            if (value.isJsonPrimitive) {
-                when {
-                    (value as JsonPrimitive).isBoolean -> return BooleanSetting(name, value.asBoolean)
-                    value.isNumber -> return NumberSetting(name, value.asDouble)
-                    value.isString -> return StringSetting(name, value.asString)
+            return when {
+                value.isJsonPrimitive -> when {
+                    (value as JsonPrimitive).isBoolean -> BooleanSetting(name, value.asBoolean)
+                    value.isNumber -> NumberSetting(name, value.asDouble)
+                    value.isString -> StringSetting(name, value.asString)
+                    else -> DummySetting("Undefined")
                 }
+                value.isJsonArray -> {
+                    val list = value.asJsonArray.mapNotNull { element ->
+                        when {
+                            element.isJsonPrimitive && element.asJsonPrimitive.isBoolean -> element.asBoolean
+                            element.isJsonPrimitive && element.asJsonPrimitive.isNumber -> element.asDouble
+                            element.isJsonPrimitive && element.asJsonPrimitive.isString -> element.asString
+                            else -> null
+                        }
+                    }.toMutableList()
+                    ListSetting(name, list, "")
+                }
+                else -> DummySetting("Undefined")
             }
         }
         return DummySetting("Undefined")
