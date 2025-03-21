@@ -1,7 +1,7 @@
 package catgirlroutes.utils.rotation
 
 import catgirlroutes.CatgirlRoutes.Companion.mc
-import catgirlroutes.commands.commodore
+import com.github.stivais.commodore.Commodore
 import catgirlroutes.utils.ChatUtils.debugMessage
 import catgirlroutes.utils.ChatUtils.modMessage
 import catgirlroutes.utils.rotation.RotationUtils.rotateSmoothly
@@ -84,7 +84,7 @@ object RotationUtils {
     }
 }
 
-val rotationDebug = commodore("rot") {
+val rotationDebug = Commodore("rot") {
     literal("set").runs{
             yaw: Float, pitch: Float, time : Int ->
         rotateSmoothly(yaw, pitch, time)

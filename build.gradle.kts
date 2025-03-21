@@ -31,7 +31,6 @@ blossom {
     replaceToken("@MODVERSION@", version)
 }
 
-
 tasks.register("downloadOdin") {
     val downloadUrl = "https://github.com/odtheking/Odin/releases/download/${requiredOdinVersion}/${requiredOdin}"
     val targetFile = file("build/resources/Odin")
@@ -117,7 +116,7 @@ repositories {
 
 val shadowImpl: Configuration by configurations.creating {
     configurations.implementation.get().extendsFrom(this)
-    dependencies.add(project.dependencies.create("com.github.Stivais:Commodore:3f4a14b1cf"))
+    dependencies.add(project.dependencies.create("com.github.Stivais:Commodore:bea320fe0a"))
 }
 
 dependencies {
@@ -129,7 +128,9 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 
-//    implementation("com.github.Stivais:Commodore:3f4a14b1cf")
+    implementation(kotlin("reflect"))
+
+//    implementation("com.github.Stivais:Commodore:bea320fe0a")
 
     shadowImpl(kotlin("stdlib-jdk8"))
 

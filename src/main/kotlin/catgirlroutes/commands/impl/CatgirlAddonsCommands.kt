@@ -1,7 +1,7 @@
 package catgirlroutes.commands.impl
 
 import catgirlroutes.CatgirlRoutes.Companion.display
-import catgirlroutes.commands.commodore
+import com.github.stivais.commodore.Commodore
 import catgirlroutes.module.Module
 import catgirlroutes.module.ModuleManager
 import catgirlroutes.module.impl.render.ClickGui
@@ -13,7 +13,7 @@ import catgirlroutes.utils.LocationManager.inSkyblock
 import catgirlroutes.utils.Notifications
 import com.github.stivais.commodore.utils.GreedyString
 
-val catgirlAddonsCommands = commodore("catgirladdons", "cataddons", "cga") {
+val catgirlAddonsCommands = Commodore("catgirladdons", "cataddons", "cga") {
     runs {
         ClickGui.onEnable()
     }
