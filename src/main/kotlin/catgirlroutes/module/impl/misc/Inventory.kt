@@ -54,7 +54,7 @@ object Inventory : Module(
     private val invHUD = BooleanSetting("Inventory HUD").withDependency(this.invDropdown)
     private val playerModel = BooleanSetting("Player model").withDependency(invDropdown) { this.invHUD.enabled }
 
-    private val sbDropdown = DropdownSetting("Search Bar")
+    private val sbDropdown = DropdownSetting("Search bar dropdown")
     private val searchBar = BooleanSetting("Search bar", description = "Use \",\" separator to search for things like attributes").withDependency(this.sbDropdown)
     private val bgColour_ = ColorSetting("Background colour", Color(ColorUtil.buttonColor)).withDependency(this.sbDropdown) { searchBar.enabled }
     private val outlineColour_ = ColorSetting("Outline colour", ColorUtil.clickGUIColor).withDependency(this.sbDropdown) { searchBar.enabled }
@@ -68,8 +68,8 @@ object Inventory : Module(
 
     private val ctrlF = BooleanSetting("Ctrl + F to search").withDependency { this.auctionOverlay.enabled || this.bazaarOverlay.enabled } // todo: Make it click on signs in other guis (price, quantity, etc)
 
-    val ahHistory = StringSetting("AH_SEARCH", "[\"\"]",  5000, visibility = Visibility.HIDDEN)
-    val bzHistory = StringSetting("BZ_SEARCH", "[\"\"]", 5000, visibility = Visibility.HIDDEN)
+    val ahHistory = ListSetting("AH_SEARCH", mutableListOf<String>())
+    val bzHistory = ListSetting("BZ_SEARCH", mutableListOf<String>())
     val barX = NumberSetting("SEARCH_BAR_X", visibility = Visibility.HIDDEN)
     val barY = NumberSetting("SEARCH_BAR_Y", visibility = Visibility.HIDDEN)
     val barScale = NumberSetting("SEARCH_BAR_SCALE", 1.0,1.0,1.0,0.02, visibility = Visibility.HIDDEN)
@@ -228,13 +228,20 @@ object Inventory : Module(
 
     // dummy HudElement to move search bar position
     @RegisterHudElement
-    object SearchBar : HudElement(this, this.barX, this.barY, 200, 25, this.barScale) { override fun renderHud() {  } }
+    object SearchBar : HudElement(this, this.barX, this.barY, 200, 25, this.barScale) {
+        override val toggled: Boolean
+            get() = searchBar.enabled
+
+        override fun renderHud() {  }
+    }
 
     @RegisterHudElement
     object InventoryHUD : HudElement(this, width = 2 + 22 * 9, height = 2 + 22 * 3) {
-        override fun renderHud() {
-            if (!invHUD.enabled) return
 
+        override val toggled: Boolean
+            get() = invHUD.enabled
+
+        override fun renderHud() {
             this.width = 2 + if (playerModel.enabled) 22 * 11 else 22 * 9
             drawRoundedBorderedRect(0.0, 0.0, this.width.toDouble(), this.height.toDouble(), 5.0, 2.0, Color(139, 139, 139, 155), Color(250, 250, 250, 155))
             if (playerModel.enabled) drawPlayerOnScreen(this.width - 22.5, 62.5, this.partialTicks, 30.0)

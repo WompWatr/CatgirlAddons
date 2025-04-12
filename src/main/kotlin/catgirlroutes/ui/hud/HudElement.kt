@@ -18,11 +18,14 @@ import kotlin.math.floor
  * Provides functionality for game overlay elements.
  * @author Aton
  */
-abstract class HudElement{
+abstract class HudElement {
 
     private var parentModule: Module
     val enabled: Boolean
-        get() = parentModule.enabled
+        get() = this.parentModule.enabled && this.toggled
+
+    open val toggled: Boolean
+        get() = true
 
     private val xSett: NumberSetting
     private val ySett: NumberSetting
@@ -32,8 +35,6 @@ abstract class HudElement{
     var height: Int
 
     var partialTicks: Float = 1.0f
-
-    private var preview: () -> Unit
 
     private val zoomIncrement = 0.05
 
@@ -64,7 +65,6 @@ abstract class HudElement{
         width: Int = 10,
         height: Int = 10,
         defaultScale: Double = 1.0,
-        preview: () -> Unit = { FontUtil.drawStringWithShadow(module.name, 0.0, 0.0) }
     ) {
         val id = module.settings.count { it.name.startsWith("xHud") }
         val xHud = NumberSetting("xHud_$id", default = xDefault.toDouble(), visibility = Visibility.HIDDEN)
@@ -81,8 +81,6 @@ abstract class HudElement{
 
         this.width = width
         this.height = height
-
-        this.preview = preview
     }
 
     /**
@@ -95,7 +93,6 @@ abstract class HudElement{
         width: Int = 10,
         height: Int = 10,
         scale: NumberSetting,
-        preview: () -> Unit = { FontUtil.drawStringWithShadow(module.name, 0.0, 0.0) }
     ) {
         this.parentModule = module
 
@@ -105,8 +102,6 @@ abstract class HudElement{
 
         this.width = width
         this.height = height
-
-        this.preview = preview
     }
 
     /**
@@ -133,7 +128,7 @@ abstract class HudElement{
      */
     @SubscribeEvent
     fun onOverlay(event: RenderGameOverlayEvent.Post) {
-        if (event.type != RenderGameOverlayEvent.ElementType.HOTBAR) return
+        if (event.type != RenderGameOverlayEvent.ElementType.HOTBAR || !this.enabled) return
         this.partialTicks = event.partialTicks
         GlStateManager.pushMatrix()
         GlStateManager.translate(x.toFloat(), y.toFloat(), 0f)
@@ -151,6 +146,10 @@ abstract class HudElement{
      * Within this method coordinates are already transformed regarding to the HUD position [x],[x] and [scale].
      */
     abstract fun renderHud()
+
+    open fun preview() {
+        FontUtil.drawStringWithShadow(this.parentModule.name, 0.0, 0.0)
+    }
 
     /**
      * Use this method to dynamically update [HudElement] dimensions

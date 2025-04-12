@@ -20,6 +20,7 @@ import net.minecraftforge.client.event.ClientChatReceivedEvent
 import net.minecraftforge.event.entity.player.PlayerInteractEvent
 import net.minecraftforge.event.world.WorldEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
+import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent
 
 object RendHelper : Module(
     name = "Rend Helper",
@@ -36,6 +37,7 @@ object RendHelper : Module(
     var clickedBone = true
     var clickedWarden = true
     var cancelWindow = false
+    var rotated = true
 
     fun getWarden(): Int? {
         val container = mc.thePlayer.openContainer ?: return null
@@ -52,8 +54,9 @@ object RendHelper : Module(
 
     @SubscribeEvent
     fun onChat(event: ClientChatReceivedEvent) {
-        if (event.message.unformattedText.contains("[NPC] Elle: POW! SURELY THAT'S IT! I don't think he has any more in him!")) {
+        if (event.message.unformattedText.contains("POW! SURELY THAT'S IT! I don't think he has any more in him")) {
             dpsPhase = true
+            rotated = false
             if (wardenSetting.value) {
                 clickedBone = false
                 clickedWarden = false
@@ -113,16 +116,16 @@ object RendHelper : Module(
     }
 
     @SubscribeEvent
-    fun onTp(event: PacketReceiveEvent) {
-        if (event.packet !is S08PacketPlayerPosLook) return
-        if (event.packet.y in 5.9..6.1 && dpsPhase && rotationSetting.value) {
-
+    fun onTick(event: ClientTickEvent) {
+        if (rotated) return
+        if (mc.thePlayer.posY in 5.9..6.1 && dpsPhase && rotationSetting.value) {
             val cubes = mc.theWorld.loadedEntityList
                 .filterIsInstance<EntityMagmaCube>()
 
             val kuudra = cubes.find { cube -> cube.width.toInt() == 15 && cube.health <= 100000 }
 
             if (kuudra != null) {
+                rotated = true
                 val x = kuudra.posX
                 val z = kuudra.posZ
                 var yaw = 0
@@ -137,7 +140,7 @@ object RendHelper : Module(
 
                 scheduleTask(0) {
                     mc.thePlayer.rotationYaw = yaw.toFloat()
-                    mc.thePlayer.rotationPitch = 0f
+                    mc.thePlayer.rotationPitch = -25f
                 }
             }
         }

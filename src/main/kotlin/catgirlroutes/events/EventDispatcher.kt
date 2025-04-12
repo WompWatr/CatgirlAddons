@@ -15,6 +15,7 @@ import net.minecraft.entity.item.EntityItem
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement
 import net.minecraft.network.play.server.S29PacketSoundEffect
 import net.minecraft.network.play.server.S2DPacketOpenWindow
+import net.minecraft.network.play.server.S32PacketConfirmTransaction
 import net.minecraftforge.fml.common.eventhandler.EventPriority
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 
@@ -35,6 +36,7 @@ object EventDispatcher { // I didn't come up with anything better so I'm just sk
     @SubscribeEvent
     fun onPacket(event: PacketReceiveEvent) {
         if (event.packet is S29PacketSoundEffect && inDungeons && !inBoss && (event.packet.soundName.equalsOneOf("mob.bat.hurt", "mob.bat.death") && event.packet.volume == 0.1f)) SecretPickupEvent.Bat(event.packet).postAndCatch()
+        if (event.packet is S32PacketConfirmTransaction) ServerTickEvent().postAndCatch()
     }
 
     val termNames = listOf(

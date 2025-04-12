@@ -53,20 +53,20 @@ object SkyblockPlayer {
             this.effectiveHealth = this.maxHealth * (1 + this.defence / 100)
         }
 
-        DEF_REGEX.find(message)?.groupValues?.get(1)?.let { this.defence = it.toIntOrNull() ?: this.defence }
+        this.defence = DEF_REGEX.find(message)?.groupValues?.get(1)?.toIntOrNull() ?: this.defence
 
         MANA_REGEX.find(message)?.destructured?.let { (mana, maxMana) ->
             this.mana = mana.toInt()
             this.maxMana = maxMana.toInt()
         }
 
-        OVERFLOW_REGEX.find(message)?.destructured?.let { (overflow) -> this.overflowMana = overflow.toInt() }
+        this.overflowMana = OVERFLOW_REGEX.find(message)?.destructured?.component1()?.toInt() ?: 0
 
-        STACKS_REGEX.find(message)?.destructured?.let { (stacks) -> this.stacks = stacks }
+        this.stacks = STACKS_REGEX.find(message)?.destructured?.component1() ?: ""
 
-        SALVATION_REGEX.find(message)?.destructured?.let { (salvation) -> this.salvation = salvation.toInt() }
+        this.salvation = SALVATION_REGEX.find(message)?.destructured?.component1()?.toInt() ?: 0
 
-        MANA_USAGE_REGEX.find(message)?.let { this.manaUsage = it.value } ?: run { this.manaUsage = "" }
+        this.manaUsage = MANA_USAGE_REGEX.find(message)?.value ?: ""
 
         SECRETS_REGEX.find(message)?.destructured?.let { (current, max) ->
             this.currentSecrets = current.toInt()

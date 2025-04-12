@@ -54,7 +54,7 @@ object WaterSolver {
         modMessage("$patternIdentifier || ${WoolColor.entries.filter { it.isExtended }.joinToString(", ") { it.name.lowercase() }}")
 
         solutions.clear()
-        waterSolutions[patternIdentifier.toString()].asJsonObject[extendedSlots].asJsonObject.entrySet().forEach {
+        waterSolutions["true"].asJsonObject[patternIdentifier.toString()].asJsonObject[extendedSlots].asJsonObject.entrySet().forEach {
             solutions[
                 when (it.key) {
                     "diamond_block" -> LeverBlock.DIAMOND

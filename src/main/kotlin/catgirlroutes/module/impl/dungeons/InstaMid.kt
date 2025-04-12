@@ -9,9 +9,11 @@ import catgirlroutes.utils.ChatUtils.modMessage
 import catgirlroutes.utils.MovementUtils.setKey
 import catgirlroutes.utils.PacketUtils
 import catgirlroutes.utils.Utils
+import catgirlroutes.utils.Utils.noControlCodes
 import net.minecraft.client.gui.ScaledResolution
 import net.minecraft.network.play.client.C03PacketPlayer
 import net.minecraft.network.play.client.C0CPacketInput
+import net.minecraft.network.play.server.S02PacketChat
 import net.minecraft.network.play.server.S1BPacketEntityAttach
 import net.minecraftforge.client.event.RenderGameOverlayEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
@@ -49,12 +51,21 @@ object InstaMid : Module(
 
     @SubscribeEvent
     fun onPacketReceive(event: PacketReceiveEvent) {
-        if (!this.enabled || event.packet !is S1BPacketEntityAttach || !isOnPlatform() || event.packet.entityId != mc.thePlayer.entityId || event.packet.vehicleEntityId < 0) return
+        if (event.packet !is S1BPacketEntityAttach || !isOnPlatform() || event.packet.entityId != mc.thePlayer.entityId || event.packet.vehicleEntityId < 0) return
         preparing = true
         active = true
 
         modMessage("Attempting to instamid")
-        setKey("shift", true)
+    }
+
+    @SubscribeEvent
+    fun onChat(event: PacketReceiveEvent) {
+        if (event.packet !is S02PacketChat || event.packet.type.toInt() != 0 || !isOnPlatform()) return
+        val message = event.packet.chatComponent.unformattedText.noControlCodes
+        if (message == "[BOSS] Necron: You went further than any human before, congratulations.") {
+            modMessage("Preparing to instamid")
+            setKey("shift", true)
+        }
     }
 
     @SubscribeEvent
@@ -71,6 +82,8 @@ object InstaMid : Module(
     }
 
     private fun isOnPlatform(): Boolean {
-        return mc.thePlayer.posY in 64.0..100.0 && abs(mc.thePlayer.posX - 54.5).pow(2) + abs(mc.thePlayer.posZ - 76.5).pow(2) < 56.25
+        return mc.thePlayer?.let { player ->
+            player.posY in 64.0..100.0 && abs(player.posX - 54.5).pow(2) + abs(player.posZ - 76.5).pow(2) < 56.25
+        } ?: false
     }
 }
