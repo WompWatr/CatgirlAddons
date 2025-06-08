@@ -88,10 +88,10 @@ repositories {
 
 val shadowImpl: Configuration by configurations.creating {
     configurations.implementation.get().extendsFrom(this)
-    //dependencies.add(project.dependencies.create("com.github.Stivias:Commodore:bea320fe0a"))
-    //dependencies.add(project.dependencies.create("com.mojang:brigadier:1.2.9"))
+    dependencies.add(project.dependencies.create("com.github.Stivais:Commodore:bea320fe0a"))
+    dependencies.add(project.dependencies.create("com.mojang:brigadier:1.2.9"))
 }
-
+//test
 dependencies {
     minecraft("com.mojang:minecraft:1.8.9")
     mappings("de.oceanlabs.mcp:mcp_stable:22-1.8.9")
