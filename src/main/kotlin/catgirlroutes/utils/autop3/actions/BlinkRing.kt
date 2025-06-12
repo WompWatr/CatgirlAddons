@@ -33,7 +33,7 @@ class BlinkRing(var packets: MutableList<Blink.BlinkC06> = mutableListOf()) : Ri
                 }
                 mc.thePlayer.setPosition(packets.last().x, packets.last().y, packets.last().z)
             }
-            scheduleTask(10) {
+            scheduleTask(1) {
                 blinkCd = false
             }
         }
